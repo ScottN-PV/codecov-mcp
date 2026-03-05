@@ -176,6 +176,8 @@ Create `.vscode/mcp.json` in your project root:
 
 This will prompt you for the token on first use so it doesn't get committed to your repo.
 
+> **Note:** If your project has `.vscode/` in `.gitignore`, this file won't be tracked. Move the config to user-level (Option C) if you need it to persist, or remove `.vscode/` from `.gitignore` if you want to share it with your team.
+
 ### Option B: Hardcoded Token (Private Repos Only)
 
 If you don't want the prompt, hardcode the token (but **don't commit this file**):
@@ -371,7 +373,7 @@ After adding codecov-mcp to your client, verify it's working:
 
 1. **Open your AI agent** (Claude Code, Claude Desktop, Cursor, etc.)
 2. **Ask:** "What tools do you have from codecov?"
-   - You should see 37 tools listed
+   - You should see all the codecov tools listed
 3. **Test a call:** "What's the current coverage for this repo?"
    - If auto-detection is working, you should get coverage data
    - If not, you'll get a clear error message about what to configure

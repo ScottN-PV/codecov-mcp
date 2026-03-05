@@ -36,7 +36,7 @@ claude mcp add --transport stdio codecov \
   -- npx -y codecov-mcp
 ```
 
-**Claude Code (Windows), Claude Desktop, Cursor, VS Code, Windsurf — edit JSON config:**
+**All other clients (Claude Desktop, Cursor, Windsurf, Claude Code on Windows) — edit JSON config:**
 
 Add this to your client's MCP config file (see [full installation guide](docs/INSTALLATION.md) for exact file locations):
 
@@ -54,6 +54,8 @@ Add this to your client's MCP config file (see [full installation guide](docs/IN
 }
 ```
 
+> **VS Code users:** VS Code uses a different config format (`"servers"` instead of `"mcpServers"`). See the [VS Code section](docs/INSTALLATION.md#vs-code-github-copilot) for the correct setup.
+>
 > **Windows users:** The CLI command has known quoting issues in PowerShell/CMD. Edit the JSON config directly — it's faster and always works. See the [installation guide](docs/INSTALLATION.md#claude-code-cli).
 
 That's it. If you're in a git repo with a GitHub/GitLab/Bitbucket remote, the server auto-detects your service, owner, and repo — zero extra configuration.
