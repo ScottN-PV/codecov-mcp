@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import type { Config, PaginatedResponse } from '../types.js'
+import type { Config } from '../types.js'
 import type { CodecovClient } from '../client.js'
 import { ServiceEnum, PaginationParams } from '../schemas/shared.js'
 import { resolveServiceParam, resolveOwnerParams } from '../utils/resolve-params.js'

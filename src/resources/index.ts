@@ -2,7 +2,7 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import type { Config } from '../types.js'
 import type { CodecovClient } from '../client.js'
 import { normalizeKeysDeep } from '../utils/format.js'
-import { resolveOwnerParams, resolveRepoParams } from '../utils/resolve-params.js'
+import { resolveOwnerParams } from '../utils/resolve-params.js'
 
 export function registerResources(server: McpServer, config: Config, client: CodecovClient) {
   // codecov://{owner}/repos — list repos for an owner
