@@ -27,13 +27,34 @@ Instead of switching to the Codecov web UI, your AI assistant can directly:
 
 Go to **[Codecov Settings > Access](https://app.codecov.io/account)** and generate an **API Access Token** (not an upload token).
 
-### 2. Add to Claude Code
+### 2. Add to Your MCP Client
 
+**Claude Code (macOS / Linux):**
 ```bash
 claude mcp add --transport stdio codecov \
   --env CODECOV_TOKEN=your-token-here \
   -- npx -y codecov-mcp
 ```
+
+**Claude Code (Windows), Claude Desktop, Cursor, VS Code, Windsurf — edit JSON config:**
+
+Add this to your client's MCP config file (see [full installation guide](docs/INSTALLATION.md) for exact file locations):
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+> **Windows users:** The CLI command has known quoting issues in PowerShell/CMD. Edit the JSON config directly — it's faster and always works. See the [installation guide](docs/INSTALLATION.md#claude-code-cli).
 
 That's it. If you're in a git repo with a GitHub/GitLab/Bitbucket remote, the server auto-detects your service, owner, and repo — zero extra configuration.
 
@@ -51,73 +72,7 @@ Ask your AI agent things like:
 >
 > "Are there any flaky tests?"
 
----
-
-## Setup Options
-
-### Claude Code (CLI)
-
-```bash
-claude mcp add --transport stdio codecov \
-  --env CODECOV_TOKEN=your-token-here \
-  -- npx -y codecov-mcp
-```
-
-### Claude Code (Windows PowerShell)
-
-```powershell
-claude mcp add --transport stdio codecov `
-  --env CODECOV_TOKEN=your-token-here `
-  -- npx -y codecov-mcp
-```
-
-### JSON Config (Claude Desktop, Cursor, etc.)
-
-Add to your MCP settings file (e.g., `claude_desktop_config.json` or `.claude.json`):
-
-```json
-{
-  "mcpServers": {
-    "codecov": {
-      "command": "npx",
-      "args": ["-y", "codecov-mcp"],
-      "env": {
-        "CODECOV_TOKEN": "your-token-here"
-      }
-    }
-  }
-}
-```
-
-### Pin to a Specific Repo
-
-If you want to target a specific repo regardless of your working directory:
-
-```json
-{
-  "mcpServers": {
-    "codecov": {
-      "command": "npx",
-      "args": ["-y", "codecov-mcp"],
-      "env": {
-        "CODECOV_TOKEN": "your-token-here",
-        "CODECOV_SERVICE": "github",
-        "CODECOV_OWNER": "my-org",
-        "CODECOV_REPO": "my-repo"
-      }
-    }
-  }
-}
-```
-
-### Self-Hosted Codecov
-
-```bash
-claude mcp add --transport stdio codecov \
-  --env CODECOV_TOKEN=your-token \
-  --env CODECOV_API_BASE_URL=https://codecov.internal.company.com \
-  -- npx -y codecov-mcp
-```
+> **📖 Full setup instructions** for every client and platform: **[Installation Guide](docs/INSTALLATION.md)**
 
 ---
 
@@ -271,36 +226,16 @@ For `service`, `owner`, and `repo`, the server resolves values in this order:
 
 ## Troubleshooting
 
-### "CODECOV_TOKEN is not set"
+| Error | Fix |
+|-------|-----|
+| `CODECOV_TOKEN is not set` | Use an **API Access Token** (not upload token) from [Codecov Settings](https://app.codecov.io/account) |
+| `Could not determine git service` | Run from a git repo with a recognized remote, or set `CODECOV_SERVICE`/`CODECOV_OWNER`/`CODECOV_REPO` |
+| `Authentication failed (401)` | Token is invalid or expired — generate a new one |
+| `Resource not found (404)` | Check owner/repo names and that the repo has coverage data |
+| Windows: `spawn npx ENOENT` | Use `"command": "npx.cmd"` in your JSON config, or install globally |
+| Stale data | Set `CODECOV_CACHE_TTL_MS=0` to disable caching |
 
-You need an **API Access Token**, not an upload token. Generate one at [Codecov Settings > Access](https://app.codecov.io/account).
-
-### "Could not determine git service"
-
-The server couldn't detect your repo from the git remote. Either:
-- Run from inside a git repo with a GitHub/GitLab/Bitbucket remote, or
-- Set `CODECOV_SERVICE`, `CODECOV_OWNER`, and `CODECOV_REPO` environment variables
-
-### "Resource not found" (404)
-
-Verify the owner, repo, and other parameters are correct. Common causes:
-- Typo in owner/repo name
-- The repo hasn't uploaded coverage to Codecov yet
-- Your token doesn't have access to the repo
-
-### Stale data
-
-The server caches responses for 5 minutes by default. To reduce or disable caching:
-```
-CODECOV_CACHE_TTL_MS=0
-```
-
-### Timeout errors
-
-Increase the timeout for slow connections:
-```
-CODECOV_TIMEOUT_MS=60000
-```
+**More troubleshooting:** [Installation Guide — Troubleshooting](docs/INSTALLATION.md#troubleshooting)
 
 ---
 
