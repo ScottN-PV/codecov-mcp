@@ -28,5 +28,5 @@ export function normalizeKeysDeep(data: unknown): unknown {
 }
 
 function toCamelCase(str: string): string {
-  return str.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase())
+  return str.replaceAll(/_([a-z])/g, (_, c: string) => c.toUpperCase())
 }
