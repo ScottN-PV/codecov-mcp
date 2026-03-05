@@ -8,14 +8,16 @@ import { normalizeKeysDeep } from '../utils/format.js'
 import { toolResult, withErrorHandling } from '../utils/tool-result.js'
 
 export function registerBranchTools(server: McpServer, config: Config, client: CodecovClient) {
-  server.tool(
+  server.registerTool(
     'list_branches',
-    'List branches for a repository with their latest coverage data. Useful for comparing coverage across branches.',
     {
-      ...OwnerRepoParams.shape,
-      ordering: z.string().optional().describe('Sort field (e.g. "-updatestamp", "name").'),
-      author: z.string().optional().describe('Filter by branch author.'),
-      ...PaginationParams.shape,
+      description: 'List branches for a repository with their latest coverage data. Useful for comparing coverage across branches.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        ordering: z.string().optional().describe('Sort field (e.g. "-updatestamp", "name").'),
+        author: z.string().optional().describe('Filter by branch author.'),
+        ...PaginationParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -32,17 +34,19 @@ export function registerBranchTools(server: McpServer, config: Config, client: C
       )
       return toolResult({
         count: data.count,
-        branches: (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+        branches: data.results.map(r => normalizeKeysDeep(r)),
       })
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'get_branch',
-    'Get coverage details for a specific branch. Returns the latest commit SHA and coverage totals for that branch.',
     {
-      ...OwnerRepoParams.shape,
-      branch: z.string().describe('Branch name.'),
+      description: 'Get coverage details for a specific branch. Returns the latest commit SHA and coverage totals for that branch.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        branch: z.string().describe('Branch name.'),
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)

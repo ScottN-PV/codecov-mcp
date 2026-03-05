@@ -4,9 +4,9 @@ interface CacheEntry<T> {
 }
 
 export class LRUCache {
-  private entries = new Map<string, CacheEntry<unknown>>()
-  private maxEntries: number
-  private ttlMs: number
+  private readonly entries = new Map<string, CacheEntry<unknown>>()
+  private readonly maxEntries: number
+  private readonly ttlMs: number
 
   constructor(ttlMs: number, maxEntries = 100) {
     this.ttlMs = ttlMs

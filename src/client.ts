@@ -1,17 +1,17 @@
-import type { Config, PaginatedResponse } from './types.js'
+import type { Config, PaginatedResponse, QueryParams } from './types.js'
 import { LRUCache } from './cache.js'
 import { CodecovError, formatApiError, requireToken } from './utils/errors.js'
 
 export class CodecovClient {
-  private config: Config
-  private cache: LRUCache
+  private readonly config: Config
+  private readonly cache: LRUCache
 
   constructor(config: Config, cache: LRUCache) {
     this.config = config
     this.cache = cache
   }
 
-  async get<T>(path: string, params?: Record<string, string | number | boolean>): Promise<T> {
+  async get<T>(path: string, params?: QueryParams): Promise<T> {
     const url = this.buildUrl(path, params)
     const cacheKey = url.toString()
 
@@ -23,7 +23,7 @@ export class CodecovClient {
     return result
   }
 
-  async list<T>(path: string, params?: Record<string, string | number | boolean>): Promise<PaginatedResponse<T>> {
+  async list<T>(path: string, params?: QueryParams): Promise<PaginatedResponse<T>> {
     return this.get<PaginatedResponse<T>>(path, params)
   }
 
@@ -45,7 +45,7 @@ export class CodecovClient {
     return response.json() as Promise<T>
   }
 
-  private buildUrl(path: string, params?: Record<string, string | number | boolean>): URL {
+  private buildUrl(path: string, params?: QueryParams): URL {
     const url = new URL(`${this.config.baseUrl}${path}`)
     if (params) {
       for (const [key, value] of Object.entries(params)) {
@@ -76,38 +76,45 @@ export class CodecovClient {
     let lastError: Error | null = null
 
     for (let attempt = 0; attempt <= this.config.maxRetries; attempt++) {
-      try {
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs)
+      const result = await this.tryFetch(url, init)
 
-        const response = await fetch(url, { ...init, signal: controller.signal })
-        clearTimeout(timeoutId)
+      if (result.response) return result.response
 
-        if (response.ok) return response
+      lastError = result.error
+      if (!result.retryable || attempt >= this.config.maxRetries) break
 
-        if (response.status === 429 || response.status >= 500) {
-          lastError = formatApiError(response.status, url.pathname)
-          if (attempt < this.config.maxRetries) {
-            const delay = Math.min(1000 * Math.pow(2, attempt), 10_000)
-            await sleep(delay)
-            continue
-          }
-        }
-
-        const bodyText = await response.text().catch(() => '')
-        throw formatApiError(response.status, url.pathname, bodyText)
-      } catch (err) {
-        if (err instanceof CodecovError) throw err
-        lastError = err instanceof Error ? err : new Error(String(err))
-        if (attempt < this.config.maxRetries) {
-          const delay = Math.min(1000 * Math.pow(2, attempt), 10_000)
-          await sleep(delay)
-          continue
-        }
-      }
+      const delay = Math.min(1000 * Math.pow(2, attempt), 10_000)
+      await sleep(delay)
     }
 
-    throw lastError || new CodecovError('Request failed after retries')
+    throw lastError ?? new CodecovError('Request failed after retries')
+  }
+
+  private async tryFetch(url: URL, init: RequestInit): Promise<{
+    response?: Response
+    error: Error
+    retryable: boolean
+  }> {
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), this.config.timeoutMs)
+
+      const response = await fetch(url, { ...init, signal: controller.signal })
+      clearTimeout(timeoutId)
+
+      if (response.ok) return { response, error: null as never, retryable: false }
+
+      if (response.status === 429 || response.status >= 500) {
+        return { error: formatApiError(response.status, url.pathname), retryable: true }
+      }
+
+      const bodyText = await response.text().catch(() => '')
+      throw formatApiError(response.status, url.pathname, bodyText)
+    } catch (err) {
+      if (err instanceof CodecovError) throw err
+      const error = err instanceof Error ? err : new Error(String(err))
+      return { error, retryable: true }
+    }
   }
 }
 

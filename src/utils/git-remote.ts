@@ -1,4 +1,4 @@
-import { execSync } from 'child_process'
+import { execSync } from 'node:child_process'
 import type { GitRemoteInfo } from '../types.js'
 
 const SERVICE_MAP: Record<string, string> = {
@@ -6,6 +6,9 @@ const SERVICE_MAP: Record<string, string> = {
   'gitlab.com': 'gitlab',
   'bitbucket.org': 'bitbucket',
 }
+
+const SSH_RE = /^git@([^:]+):([^/]+)\/(.+?)(?:\.git)?$/
+const HTTPS_RE = /^https?:\/\/([^/]+)\/([^/]+)\/(.+?)(?:\.git)?$/
 
 export function detectGitRemote(): GitRemoteInfo | null {
   try {
@@ -23,7 +26,7 @@ export function detectGitRemote(): GitRemoteInfo | null {
 
 export function parseGitUrl(url: string): GitRemoteInfo | null {
   // SSH: git@github.com:owner/repo.git
-  const sshMatch = url.match(/^git@([^:]+):([^/]+)\/(.+?)(?:\.git)?$/)
+  const sshMatch = SSH_RE.exec(url)
   if (sshMatch) {
     const service = SERVICE_MAP[sshMatch[1]]
     if (service) {
@@ -32,7 +35,7 @@ export function parseGitUrl(url: string): GitRemoteInfo | null {
   }
 
   // HTTPS: https://github.com/owner/repo.git
-  const httpsMatch = url.match(/^https?:\/\/([^/]+)\/([^/]+)\/(.+?)(?:\.git)?$/)
+  const httpsMatch = HTTPS_RE.exec(url)
   if (httpsMatch) {
     const service = SERVICE_MAP[httpsMatch[1]]
     if (service) {

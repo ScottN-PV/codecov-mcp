@@ -8,17 +8,19 @@ import { normalizeKeysDeep } from '../utils/format.js'
 import { toolResult, withErrorHandling } from '../utils/tool-result.js'
 
 export function registerRepoTools(server: McpServer, config: Config, client: CodecovClient) {
-  server.tool(
+  server.registerTool(
     'list_repos',
-    'List repositories for an owner/organization. Filterable by active status, name search, and sortable. Use this to discover available repos before querying coverage.',
     {
-      service: ServiceEnum.optional().describe('Git hosting service.'),
-      owner: z.string().optional().describe('Organization or username.'),
-      active: z.boolean().optional().describe('Filter by active status (has uploads).'),
-      names: z.string().optional().describe('Filter repos by name (partial match).'),
-      search: z.string().optional().describe('Search across repo names.'),
-      ordering: z.string().optional().describe('Sort field (e.g. "-updatestamp", "name").'),
-      ...PaginationParams.shape,
+      description: 'List repositories for an owner/organization. Filterable by active status, name search, and sortable. Use this to discover available repos before querying coverage.',
+      inputSchema: {
+        service: ServiceEnum.optional().describe('Git hosting service.'),
+        owner: z.string().optional().describe('Organization or username.'),
+        active: z.boolean().optional().describe('Filter by active status (has uploads).'),
+        names: z.string().optional().describe('Filter repos by name (partial match).'),
+        search: z.string().optional().describe('Search across repo names.'),
+        ordering: z.string().optional().describe('Sort field (e.g. "-updatestamp", "name").'),
+        ...PaginationParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner } = resolveOwnerParams(config, args)
@@ -37,16 +39,18 @@ export function registerRepoTools(server: McpServer, config: Config, client: Cod
       )
       return toolResult({
         count: data.count,
-        repos: (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+        repos: data.results.map(r => normalizeKeysDeep(r)),
       })
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'get_repo',
-    'Get details for a specific repository including its current overall coverage, default branch, and language breakdown.',
     {
-      ...OwnerRepoParams.shape,
+      description: 'Get details for a specific repository including its current overall coverage, default branch, and language breakdown.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -57,11 +61,13 @@ export function registerRepoTools(server: McpServer, config: Config, client: Cod
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'get_repo_config',
-    'Get the active Codecov YAML configuration for a repository. Returns the merged configuration that Codecov uses for this repo.',
     {
-      ...OwnerRepoParams.shape,
+      description: 'Get the active Codecov YAML configuration for a repository. Returns the merged configuration that Codecov uses for this repo.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)

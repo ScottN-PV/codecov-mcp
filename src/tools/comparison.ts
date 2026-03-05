@@ -1,15 +1,15 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import type { Config } from '../types.js'
+import type { Config, QueryParams } from '../types.js'
 import type { CodecovClient } from '../client.js'
 import { OwnerRepoParams, CompareParams, validateCompareParams } from '../schemas/shared.js'
 import { resolveRepoParams } from '../utils/resolve-params.js'
 import { normalizeKeysDeep } from '../utils/format.js'
 import { toolResult, withErrorHandling } from '../utils/tool-result.js'
 
-function compareQueryParams(args: { base?: string; head?: string; pullid?: number }): Record<string, string | number | boolean> {
+function compareQueryParams(args: { base?: string; head?: string; pullid?: number }): QueryParams {
   validateCompareParams(args)
-  const params: Record<string, string | number | boolean> = {}
+  const params: QueryParams = {}
   if (args.pullid !== undefined) params.pullid = args.pullid
   if (args.base) params.base = args.base
   if (args.head) params.head = args.head
@@ -17,12 +17,14 @@ function compareQueryParams(args: { base?: string; head?: string; pullid?: numbe
 }
 
 export function registerComparisonTools(server: McpServer, config: Config, client: CodecovClient) {
-  server.tool(
+  server.registerTool(
     'compare_coverage',
-    'Compare overall coverage between two commits or a pull request. Returns base/head/diff totals and per-file changes. The primary tool for PR coverage review.',
     {
-      ...OwnerRepoParams.shape,
-      ...CompareParams.shape,
+      description: 'Compare overall coverage between two commits or a pull request. Accepts pullid for PR comparison or base+head for arbitrary commit comparison. Returns base/head/diff totals and per-file changes. The primary tool for PR coverage review alongside get_pr_coverage.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        ...CompareParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -34,12 +36,14 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'compare_components',
-    'Compare coverage by component between two commits. Components are logical groupings defined in codecov.yaml (e.g. frontend, backend). Use this in monorepos.',
     {
-      ...OwnerRepoParams.shape,
-      ...CompareParams.shape,
+      description: 'Compare coverage by component between two commits or a pull request (pass pullid). Components are logical groupings defined in codecov.yaml (e.g. frontend, backend). Use this in monorepos.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        ...CompareParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -51,13 +55,15 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'compare_file',
-    'Get line-by-line coverage comparison for a single file between two commits. Shows which lines changed coverage status.',
     {
-      ...OwnerRepoParams.shape,
-      ...CompareParams.shape,
-      file_path: z.string().describe('File path relative to repo root.'),
+      description: 'Get line-by-line coverage comparison for a single file between two commits or a pull request (pass pullid). Shows which lines changed coverage status.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        ...CompareParams.shape,
+        file_path: z.string().describe('File path relative to repo root.'),
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -69,12 +75,14 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'compare_flags',
-    'Compare coverage by flag (e.g. unit, integration, e2e) between two commits. See which test category gained or lost coverage.',
     {
-      ...OwnerRepoParams.shape,
-      ...CompareParams.shape,
+      description: 'Compare coverage by flag (e.g. unit, integration, e2e) between two commits or a pull request (pass pullid). See which test category gained or lost coverage.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        ...CompareParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -86,12 +94,14 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'compare_impacted_files',
-    'List only files with changed coverage between two commits. More efficient than full comparison when you only need to know which files got better or worse. Returns a state field: processed when complete, pending when still computing.',
     {
-      ...OwnerRepoParams.shape,
-      ...CompareParams.shape,
+      description: 'List only files with changed coverage between two commits or a pull request (pass pullid). More efficient than full comparison when you only need to know which files got better or worse. Returns a state field: processed when complete, pending when still computing.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        ...CompareParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -110,13 +120,15 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'compare_segments',
-    'Get segment-level (chunk) coverage diffs for a file between two commits. Each segment shows a contiguous block of changed lines with their before/after coverage. This is the most granular diff available.',
     {
-      ...OwnerRepoParams.shape,
-      ...CompareParams.shape,
-      file_path: z.string().describe('File path relative to repo root.'),
+      description: 'Get segment-level (chunk) coverage diffs for a file between two commits or a pull request (pass pullid). Each segment shows a contiguous block of changed lines with their before/after coverage. This is the most granular diff available.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        ...CompareParams.shape,
+        file_path: z.string().describe('File path relative to repo root.'),
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)

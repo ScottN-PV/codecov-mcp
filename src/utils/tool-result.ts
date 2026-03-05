@@ -7,11 +7,14 @@ export function toolResult(data: unknown) {
 }
 
 export function toolError(error: unknown) {
-  const message = error instanceof CodecovError
-    ? error.message
-    : error instanceof Error
-      ? error.message
-      : String(error)
+  let message: string
+  if (error instanceof CodecovError) {
+    message = error.message
+  } else if (error instanceof Error) {
+    message = error.message
+  } else {
+    message = String(error)
+  }
 
   return {
     content: [{ type: 'text' as const, text: message }],

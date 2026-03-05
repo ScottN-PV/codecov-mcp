@@ -7,12 +7,14 @@ import { normalizeKeysDeep } from '../utils/format.js'
 import { toolResult, withErrorHandling } from '../utils/tool-result.js'
 
 export function registerComponentTools(server: McpServer, config: Config, client: CodecovClient) {
-  server.tool(
+  server.registerTool(
     'list_components',
-    'List coverage components for a repository with their current coverage percentages. Components are logical groupings defined in codecov.yaml (e.g. frontend, backend, shared).',
     {
-      ...OwnerRepoParams.shape,
-      ...PaginationParams.shape,
+      description: 'List coverage components for a repository with their current coverage percentages. Components are logical groupings defined in codecov.yaml (e.g. frontend, backend, shared).',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        ...PaginationParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -22,7 +24,7 @@ export function registerComponentTools(server: McpServer, config: Config, client
       )
       return toolResult({
         count: data.count,
-        components: (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+        components: data.results.map(r => normalizeKeysDeep(r)),
       })
     }),
   )

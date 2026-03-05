@@ -6,7 +6,7 @@ import { resolveOwnerParams } from '../utils/resolve-params.js'
 
 export function registerResources(server: McpServer, config: Config, client: CodecovClient) {
   // codecov://{owner}/repos — list repos for an owner
-  server.resource(
+  server.registerResource(
     'repos',
     new ResourceTemplate('codecov://{owner}/repos', { list: undefined }),
     { description: 'List of all repositories for a specific owner with their current coverage.' },
@@ -22,7 +22,7 @@ export function registerResources(server: McpServer, config: Config, client: Cod
           uri: uri.href,
           mimeType: 'application/json',
           text: JSON.stringify(
-            (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+            data.results.map(r => normalizeKeysDeep(r)),
             null,
             2,
           ),
@@ -32,7 +32,7 @@ export function registerResources(server: McpServer, config: Config, client: Cod
   )
 
   // codecov://repo/{owner}/{repo} — repo coverage summary
-  server.resource(
+  server.registerResource(
     'repo',
     new ResourceTemplate('codecov://repo/{owner}/{repo}', { list: undefined }),
     { description: 'Current coverage summary for a specific repository.' },
@@ -54,7 +54,7 @@ export function registerResources(server: McpServer, config: Config, client: Cod
   )
 
   // codecov://repo/{owner}/{repo}/flags — flag coverage
-  server.resource(
+  server.registerResource(
     'flags',
     new ResourceTemplate('codecov://repo/{owner}/{repo}/flags', { list: undefined }),
     { description: 'Coverage flags and their current percentages for a repository.' },
@@ -71,7 +71,7 @@ export function registerResources(server: McpServer, config: Config, client: Cod
           uri: uri.href,
           mimeType: 'application/json',
           text: JSON.stringify(
-            (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+            data.results.map(r => normalizeKeysDeep(r)),
             null,
             2,
           ),
@@ -81,7 +81,7 @@ export function registerResources(server: McpServer, config: Config, client: Cod
   )
 
   // codecov://repo/{owner}/{repo}/components — component coverage
-  server.resource(
+  server.registerResource(
     'components',
     new ResourceTemplate('codecov://repo/{owner}/{repo}/components', { list: undefined }),
     { description: 'Coverage components and their current percentages for a repository.' },
@@ -98,7 +98,7 @@ export function registerResources(server: McpServer, config: Config, client: Cod
           uri: uri.href,
           mimeType: 'application/json',
           text: JSON.stringify(
-            (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+            data.results.map(r => normalizeKeysDeep(r)),
             null,
             2,
           ),

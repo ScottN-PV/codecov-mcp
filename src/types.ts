@@ -24,6 +24,8 @@ export interface GitRemoteInfo {
 
 export type CoverageValue = number | null
 
+export type QueryParams = Record<string, string | number | boolean>
+
 export interface CoverageTotals {
   files: number
   lines: number

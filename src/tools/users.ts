@@ -8,18 +8,20 @@ import { normalizeKeysDeep } from '../utils/format.js'
 import { toolResult, withErrorHandling } from '../utils/tool-result.js'
 
 export function registerUserTools(server: McpServer, config: Config, client: CodecovClient) {
-  server.tool(
+  server.registerTool(
     'list_users',
-    'List users in an organization with their activation status. Use this to see who is consuming activated seats or to find specific users. Filterable by activation status, admin status, or search term.',
     {
-      service: ServiceEnum.optional()
-        .describe('Git hosting service.'),
-      owner: z.string().optional()
-        .describe('Organization or username.'),
-      activated: z.boolean().optional().describe('Filter by activation status.'),
-      is_admin: z.boolean().optional().describe('Filter to admin users only.'),
-      search: z.string().optional().describe('Search users by username or name.'),
-      ...PaginationParams.shape,
+      description: 'List users in an organization with their activation status. Use this to see who is consuming activated seats or to find specific users. Filterable by activation status, admin status, or search term.',
+      inputSchema: {
+        service: ServiceEnum.optional()
+          .describe('Git hosting service.'),
+        owner: z.string().optional()
+          .describe('Organization or username.'),
+        activated: z.boolean().optional().describe('Filter by activation status.'),
+        is_admin: z.boolean().optional().describe('Filter to admin users only.'),
+        search: z.string().optional().describe('Search users by username or name.'),
+        ...PaginationParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner } = resolveOwnerParams(config, args)
@@ -37,18 +39,20 @@ export function registerUserTools(server: McpServer, config: Config, client: Cod
       )
       return toolResult({
         count: data.count,
-        users: (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+        users: data.results.map(r => normalizeKeysDeep(r)),
       })
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'get_user',
-    'Get details for a specific user in an organization by username or owner ID.',
     {
-      service: ServiceEnum.optional().describe('Git hosting service.'),
-      owner: z.string().optional().describe('Organization or username.'),
-      user_id: z.string().describe('Username or owner ID from list_users.'),
+      description: 'Get details for a specific user in an organization by username or owner ID.',
+      inputSchema: {
+        service: ServiceEnum.optional().describe('Git hosting service.'),
+        owner: z.string().optional().describe('Organization or username.'),
+        user_id: z.string().describe('Username or owner ID from list_users.'),
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner } = resolveOwnerParams(config, args)
@@ -59,15 +63,17 @@ export function registerUserTools(server: McpServer, config: Config, client: Cod
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'update_user',
-    'Activate or deactivate a user in an organization. This is the only mutating endpoint. Requires org admin permissions. The confirm parameter must be set to true as a safety guard.',
     {
-      service: ServiceEnum.optional().describe('Git hosting service.'),
-      owner: z.string().optional().describe('Organization or username.'),
-      user_id: z.string().describe('Username or owner ID.'),
-      activated: z.boolean().describe('Set activation status.'),
-      confirm: z.literal(true).describe('Must be true. Safety guard to prevent accidental mutations.'),
+      description: 'Activate or deactivate a user in an organization. This is the only mutating endpoint. Requires org admin permissions. The confirm parameter must be set to true as a safety guard.',
+      inputSchema: {
+        service: ServiceEnum.optional().describe('Git hosting service.'),
+        owner: z.string().optional().describe('Organization or username.'),
+        user_id: z.string().describe('Username or owner ID.'),
+        activated: z.boolean().describe('Set activation status.'),
+        confirm: z.literal(true).describe('Must be true. Safety guard to prevent accidental mutations.'),
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner } = resolveOwnerParams(config, args)
@@ -79,13 +85,15 @@ export function registerUserTools(server: McpServer, config: Config, client: Cod
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'list_user_sessions',
-    'List login sessions for users in an organization. Shows session tokens and last-seen timestamps.',
     {
-      service: ServiceEnum.optional().describe('Git hosting service.'),
-      owner: z.string().optional().describe('Organization or username.'),
-      ...PaginationParams.shape,
+      description: 'List login sessions for users in an organization. Shows session tokens and last-seen timestamps.',
+      inputSchema: {
+        service: ServiceEnum.optional().describe('Git hosting service.'),
+        owner: z.string().optional().describe('Organization or username.'),
+        ...PaginationParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner } = resolveOwnerParams(config, args)
@@ -95,7 +103,7 @@ export function registerUserTools(server: McpServer, config: Config, client: Cod
       )
       return toolResult({
         count: data.count,
-        sessions: (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+        sessions: data.results.map(r => normalizeKeysDeep(r)),
       })
     }),
   )

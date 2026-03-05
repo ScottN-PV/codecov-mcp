@@ -8,13 +8,15 @@ import { normalizeKeysDeep } from '../utils/format.js'
 import { toolResult, withErrorHandling } from '../utils/tool-result.js'
 
 export function registerOwnerTools(server: McpServer, config: Config, client: CodecovClient) {
-  server.tool(
+  server.registerTool(
     'list_owners',
-    'List all organizations and users the authenticated token has access to on a given git service. Use this to discover which owners/orgs you can query repos for.',
     {
-      service: ServiceEnum.optional()
-        .describe('Git hosting service. Defaults to CODECOV_SERVICE env var or auto-detected from git remote.'),
-      ...PaginationParams.shape,
+      description: 'List all organizations and users the authenticated token has access to on a given git service. Use this to discover which owners/orgs you can query repos for.',
+      inputSchema: {
+        service: ServiceEnum.optional()
+          .describe('Git hosting service. Defaults to CODECOV_SERVICE env var or auto-detected from git remote.'),
+        ...PaginationParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const service = resolveServiceParam(config, args)
@@ -24,19 +26,21 @@ export function registerOwnerTools(server: McpServer, config: Config, client: Co
       )
       return toolResult({
         count: data.count,
-        owners: (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+        owners: data.results.map(r => normalizeKeysDeep(r)),
       })
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'get_owner',
-    'Get details about a specific owner (organization or user), including their username and display name.',
     {
-      service: ServiceEnum.optional()
-        .describe('Git hosting service. Defaults to CODECOV_SERVICE env var or auto-detected from git remote.'),
-      owner: z.string().optional()
-        .describe('Organization or username. Defaults to CODECOV_OWNER env var or auto-detected from git remote.'),
+      description: 'Get details about a specific owner (organization or user), including their username and display name.',
+      inputSchema: {
+        service: ServiceEnum.optional()
+          .describe('Git hosting service. Defaults to CODECOV_SERVICE env var or auto-detected from git remote.'),
+        owner: z.string().optional()
+          .describe('Organization or username. Defaults to CODECOV_OWNER env var or auto-detected from git remote.'),
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner } = resolveOwnerParams(config, args)

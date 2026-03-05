@@ -8,14 +8,16 @@ import { normalizeKeysDeep } from '../utils/format.js'
 import { toolResult, withErrorHandling } from '../utils/tool-result.js'
 
 export function registerPullTools(server: McpServer, config: Config, client: CodecovClient) {
-  server.tool(
+  server.registerTool(
     'list_pulls',
-    'List pull requests for a repository with their coverage impact. Filterable by state (open/closed/merged). Use this for a quick overview of PR coverage activity.',
     {
-      ...OwnerRepoParams.shape,
-      state: z.enum(['open', 'closed', 'merged']).optional().describe('Filter by PR state.'),
-      ordering: z.string().optional().describe('Sort field (e.g. "-updatestamp").'),
-      ...PaginationParams.shape,
+      description: 'List pull requests for a repository with their coverage impact. Filterable by state (open/closed/merged). Use this for a quick overview of PR coverage activity.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        state: z.enum(['open', 'closed', 'merged']).optional().describe('Filter by PR state.'),
+        ordering: z.string().optional().describe('Sort field (e.g. "-updatestamp").'),
+        ...PaginationParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -32,17 +34,19 @@ export function registerPullTools(server: McpServer, config: Config, client: Cod
       )
       return toolResult({
         count: data.count,
-        pulls: (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+        pulls: data.results.map(r => normalizeKeysDeep(r)),
       })
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'get_pull',
-    'Get coverage details for a specific pull request, including base/head/patch coverage and CI status.',
     {
-      ...OwnerRepoParams.shape,
-      pullid: z.number().int().describe('Pull request number.'),
+      description: 'Get coverage details for a specific pull request, including base/head/patch coverage percentages and CI status. For a comprehensive PR review with impacted files, use get_pr_coverage instead.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        pullid: z.number().int().describe('Pull request number.'),
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)

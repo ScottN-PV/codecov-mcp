@@ -8,13 +8,15 @@ import { normalizeKeysDeep } from '../utils/format.js'
 import { toolResult, withErrorHandling } from '../utils/tool-result.js'
 
 export function registerCommitTools(server: McpServer, config: Config, client: CodecovClient) {
-  server.tool(
+  server.registerTool(
     'list_commits',
-    'List commits for a repository with their coverage totals. Filterable by branch. Use this to track coverage changes over time at the commit level.',
     {
-      ...OwnerRepoParams.shape,
-      ...BranchParam.shape,
-      ...PaginationParams.shape,
+      description: 'List commits for a repository with their coverage totals. Filterable by branch. Use this to track coverage changes over time at the commit level.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        ...BranchParam.shape,
+        ...PaginationParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -30,17 +32,19 @@ export function registerCommitTools(server: McpServer, config: Config, client: C
       )
       return toolResult({
         count: data.count,
-        commits: (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+        commits: data.results.map(r => normalizeKeysDeep(r)),
       })
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'get_commit',
-    'Get detailed coverage data for a specific commit, including total lines, hits, misses, and partial coverage counts.',
     {
-      ...OwnerRepoParams.shape,
-      sha: z.string().describe('Commit SHA.'),
+      description: 'Get detailed coverage data for a specific commit, including total lines, hits, misses, and partial coverage counts.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        sha: z.string().describe('Commit SHA.'),
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -51,13 +55,15 @@ export function registerCommitTools(server: McpServer, config: Config, client: C
     }),
   )
 
-  server.tool(
+  server.registerTool(
     'list_commit_uploads',
-    'List coverage uploads for a specific commit. Shows individual upload sessions — useful for debugging CI coverage reporting issues.',
     {
-      ...OwnerRepoParams.shape,
-      sha: z.string().describe('Commit SHA.'),
-      ...PaginationParams.shape,
+      description: 'List coverage uploads for a specific commit. Shows individual upload sessions — useful for debugging CI coverage reporting issues.',
+      inputSchema: {
+        ...OwnerRepoParams.shape,
+        sha: z.string().describe('Commit SHA.'),
+        ...PaginationParams.shape,
+      },
     },
     withErrorHandling(async (args) => {
       const { service, owner, repo } = resolveRepoParams(config, args)
@@ -67,7 +73,7 @@ export function registerCommitTools(server: McpServer, config: Config, client: C
       )
       return toolResult({
         count: data.count,
-        uploads: (data.results as Record<string, unknown>[]).map(r => normalizeKeysDeep(r)),
+        uploads: data.results.map(r => normalizeKeysDeep(r)),
       })
     }),
   )
