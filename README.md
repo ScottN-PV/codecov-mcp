@@ -29,7 +29,7 @@ Go to **[Codecov Settings > Access](https://app.codecov.io/account)** and genera
 
 ### 2. Add codecov-mcp to Your MCP Client
 
-Pick your tool below. Each section shows CLI commands and JSON config for every platform.
+Pick your tool below for platform-specific setup instructions.
 
 <details>
 <summary><strong>Claude Code</strong></summary>
@@ -46,9 +46,17 @@ claude mcp add --transport stdio codecov --env CODECOV_TOKEN=your-token-here -- 
 claude mcp add codecov --env CODECOV_TOKEN=your-token-here -- cmd /c npx -y codecov-mcp
 ```
 
-For project-scoped instead of user-scoped: add `--scope project` after `add`.
+**Project-scoped (Windows):**
 
-**JSON config (macOS / Linux)** — add to `~/.claude.json` or `.claude.json` in your project root:
+```bash
+claude mcp add --scope project codecov --env CODECOV_TOKEN=your-token-here -- cmd /c npx -y codecov-mcp
+```
+
+On macOS/Linux, add `--scope project` after `add` in the first command.
+
+**JSON fallback** — if the CLI doesn't work in your environment, add to `.claude.json` (project) or `~/.claude.json` (user):
+
+**macOS / Linux:**
 
 ```json
 {
@@ -65,7 +73,7 @@ For project-scoped instead of user-scoped: add `--scope project` after `add`.
 }
 ```
 
-**JSON config (Windows)** — add to `C:\Users\<username>\.claude.json` or `.claude.json` in your project root:
+**Windows:**
 
 ```json
 {
@@ -85,7 +93,7 @@ For project-scoped instead of user-scoped: add `--scope project` after `add`.
 </details>
 
 <details>
-<summary><strong>Codex CLI</strong></summary>
+<summary><strong>Codex</strong></summary>
 
 **CLI install (all platforms):**
 
@@ -207,17 +215,20 @@ You can also use **MCP: Open User Configuration** from the command palette for u
 </details>
 
 <details>
-<summary><strong>Claude Desktop</strong></summary>
+<summary><strong>Additional Tools</strong> (Kilo Code, Kilo CLI, Roo Code, Warp, OpenCode, Droid CLI, Cline, Continue, Zed, Claude Desktop)</summary>
 
-Open Claude Desktop > **Settings > Developer > Edit Config**, then add:
+#### Kilo Code
 
-**JSON config (macOS / Linux):**
+Open Kilo Code Settings > **Agent Behaviour** > **MCP Servers**, then use **Edit Global MCP** or **Edit Project MCP**.
+
+**Project config** — `.kilocode/mcp.json`
+
+**macOS / Linux:**
 
 ```json
 {
   "mcpServers": {
     "codecov": {
-      "type": "stdio",
       "command": "npx",
       "args": ["-y", "codecov-mcp"],
       "env": {
@@ -228,13 +239,12 @@ Open Claude Desktop > **Settings > Developer > Edit Config**, then add:
 }
 ```
 
-**JSON config (Windows):**
+**Windows:**
 
 ```json
 {
   "mcpServers": {
     "codecov": {
-      "type": "stdio",
       "command": "cmd",
       "args": ["/c", "npx", "-y", "codecov-mcp"],
       "env": {
@@ -245,12 +255,173 @@ Open Claude Desktop > **Settings > Developer > Edit Config**, then add:
 }
 ```
 
-Restart Claude Desktop after saving.
+#### Kilo CLI
 
-</details>
+**JSON config** — add to `kilo.json` or `.kilo/kilo.json`:
 
-<details>
-<summary><strong>Cline</strong></summary>
+**macOS / Linux:**
+
+```json
+{
+  "mcp": {
+    "codecov": {
+      "type": "local",
+      "command": ["npx", "-y", "codecov-mcp"],
+      "enabled": true,
+      "environment": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+**Windows:**
+
+```json
+{
+  "mcp": {
+    "codecov": {
+      "type": "local",
+      "command": ["cmd", "/c", "npx", "-y", "codecov-mcp"],
+      "enabled": true,
+      "environment": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+#### Roo Code
+
+Open the Roo Code pane, click the **MCP Servers** icon, then use **Edit Global MCP** or **Edit Project MCP**.
+
+**Project config** — `.roo/mcp.json`
+
+**macOS / Linux:**
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+**Windows:**
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+#### Warp
+
+Open **Settings > MCP Servers** in Warp, click **+ Add**, and paste:
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+Also accessible from **Warp Drive > Personal > MCP Servers** or the Command Palette (**Open MCP Servers**).
+
+**Windows:** If `npx` cannot be resolved, use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "codecov-mcp"]`.
+
+#### OpenCode
+
+**JSON config** — add to `opencode.json`:
+
+**macOS / Linux:**
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "codecov": {
+      "type": "local",
+      "command": ["npx", "-y", "codecov-mcp"],
+      "enabled": true,
+      "environment": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+**Windows:**
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "codecov": {
+      "type": "local",
+      "command": ["cmd", "/c", "npx", "-y", "codecov-mcp"],
+      "enabled": true,
+      "environment": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+#### Droid CLI
+
+**CLI install:**
+
+```bash
+droid mcp add codecov "npx -y codecov-mcp" --env CODECOV_TOKEN=your-token-here
+```
+
+Or add to `.factory/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      },
+      "disabled": false
+    }
+  }
+}
+```
+
+**Windows:** If `npx` cannot be resolved, use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "codecov-mcp"]`.
+
+#### Cline
 
 Open the Cline sidebar > **MCP Servers** icon > **Configure MCP Servers**, then add:
 
@@ -268,12 +439,9 @@ Open the Cline sidebar > **MCP Servers** icon > **Configure MCP Servers**, then 
 }
 ```
 
-**Windows:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
+**Windows:** Use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "codecov-mcp"]`.
 
-</details>
-
-<details>
-<summary><strong>Continue</strong></summary>
+#### Continue
 
 Add to `.continue/config.yaml` or via the Continue settings UI:
 
@@ -288,12 +456,7 @@ mcpServers:
       CODECOV_TOKEN: your-token-here
 ```
 
-See the [Continue MCP docs](https://docs.continue.dev/customize/mcp-tools) for additional options.
-
-</details>
-
-<details>
-<summary><strong>Zed</strong></summary>
+#### Zed
 
 Add to Zed settings (`settings.json` via **Zed > Settings** or **File > Settings**):
 
@@ -312,6 +475,46 @@ Add to Zed settings (`settings.json` via **Zed > Settings** or **File > Settings
   }
 }
 ```
+
+#### Claude Desktop
+
+Open Claude Desktop > **Settings > Developer > Edit Config**, then add:
+
+**macOS / Linux:**
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+**Windows:**
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving.
 
 </details>
 
