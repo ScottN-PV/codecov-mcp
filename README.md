@@ -215,9 +215,10 @@ You can also use **MCP: Open User Configuration** from the command palette for u
 </details>
 
 <details>
-<summary><strong>Additional Tools</strong> (Kilo Code, Kilo CLI, Roo Code, Warp, OpenCode, Droid CLI, Cline, Continue, Zed, Claude Desktop)</summary>
+<summary><strong>Additional Tools</strong></summary>
 
-#### Kilo Code
+<details>
+<summary>Kilo Code</summary>
 
 Open Kilo Code Settings > **Agent Behaviour** > **MCP Servers**, then use **Edit Global MCP** or **Edit Project MCP**.
 
@@ -255,7 +256,10 @@ Open Kilo Code Settings > **Agent Behaviour** > **MCP Servers**, then use **Edit
 }
 ```
 
-#### Kilo CLI
+</details>
+
+<details>
+<summary>Kilo CLI</summary>
 
 **JSON config** — add to `kilo.json` or `.kilo/kilo.json`:
 
@@ -293,7 +297,10 @@ Open Kilo Code Settings > **Agent Behaviour** > **MCP Servers**, then use **Edit
 }
 ```
 
-#### Roo Code
+</details>
+
+<details>
+<summary>Roo Code</summary>
 
 Open the Roo Code pane, click the **MCP Servers** icon, then use **Edit Global MCP** or **Edit Project MCP**.
 
@@ -331,7 +338,10 @@ Open the Roo Code pane, click the **MCP Servers** icon, then use **Edit Global M
 }
 ```
 
-#### Warp
+</details>
+
+<details>
+<summary>Warp</summary>
 
 Open **Settings > MCP Servers** in Warp, click **+ Add**, and paste:
 
@@ -353,7 +363,10 @@ Also accessible from **Warp Drive > Personal > MCP Servers** or the Command Pale
 
 **Windows:** If `npx` cannot be resolved, use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "codecov-mcp"]`.
 
-#### OpenCode
+</details>
+
+<details>
+<summary>OpenCode</summary>
 
 **JSON config** — add to `opencode.json`:
 
@@ -393,7 +406,10 @@ Also accessible from **Warp Drive > Personal > MCP Servers** or the Command Pale
 }
 ```
 
-#### Droid CLI
+</details>
+
+<details>
+<summary>Droid CLI</summary>
 
 **CLI install:**
 
@@ -421,7 +437,10 @@ Or add to `.factory/mcp.json`:
 
 **Windows:** If `npx` cannot be resolved, use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "codecov-mcp"]`.
 
-#### Cline
+</details>
+
+<details>
+<summary>Cline</summary>
 
 Open the Cline sidebar > **MCP Servers** icon > **Configure MCP Servers**, then add:
 
@@ -441,7 +460,10 @@ Open the Cline sidebar > **MCP Servers** icon > **Configure MCP Servers**, then 
 
 **Windows:** Use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "codecov-mcp"]`.
 
-#### Continue
+</details>
+
+<details>
+<summary>Continue</summary>
 
 Add to `.continue/config.yaml` or via the Continue settings UI:
 
@@ -456,7 +478,10 @@ mcpServers:
       CODECOV_TOKEN: your-token-here
 ```
 
-#### Zed
+</details>
+
+<details>
+<summary>Zed</summary>
 
 Add to Zed settings (`settings.json` via **Zed > Settings** or **File > Settings**):
 
@@ -476,7 +501,10 @@ Add to Zed settings (`settings.json` via **Zed > Settings** or **File > Settings
 }
 ```
 
-#### Claude Desktop
+</details>
+
+<details>
+<summary>Claude Desktop</summary>
 
 Open Claude Desktop > **Settings > Developer > Edit Config**, then add:
 
@@ -515,6 +543,8 @@ Open Claude Desktop > **Settings > Developer > Edit Config**, then add:
 ```
 
 Restart Claude Desktop after saving.
+
+</details>
 
 </details>
 
