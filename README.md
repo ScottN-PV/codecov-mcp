@@ -44,6 +44,7 @@ Add this to your client's MCP config file (see [full installation guide](docs/IN
 {
   "mcpServers": {
     "codecov": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "codecov-mcp"],
       "env": {
@@ -56,7 +57,7 @@ Add this to your client's MCP config file (see [full installation guide](docs/IN
 
 > **VS Code users:** VS Code uses a different config format (`"servers"` instead of `"mcpServers"`). See the [VS Code section](docs/INSTALLATION.md#vs-code-github-copilot) for the correct setup.
 >
-> **Windows users:** The CLI command has known quoting issues in PowerShell/CMD. Edit the JSON config directly — it's faster and always works. See the [installation guide](docs/INSTALLATION.md#claude-code-cli).
+> **Windows users:** Use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "codecov-mcp"]` instead. See the [Windows setup section](docs/INSTALLATION.md#option-b-edit-json-config-directly-all-platforms--recommended-for-windows) for the exact config.
 
 That's it. If you're in a git repo with a public GitHub/GitLab/Bitbucket remote, the server auto-detects your service, owner, and repo. Enterprise/self-hosted users should set `CODECOV_SERVICE`, `CODECOV_OWNER`, and `CODECOV_REPO` explicitly.
 
@@ -242,7 +243,7 @@ For `service`, `owner`, and `repo`, the server resolves values in this order:
 | `Could not determine git service` | Run from a git repo with a recognized remote, or set `CODECOV_SERVICE`/`CODECOV_OWNER`/`CODECOV_REPO` |
 | `Authentication failed (401)` | Token is invalid or expired — generate a new one |
 | `Resource not found (404)` | Check owner/repo names and that the repo has coverage data |
-| Windows: `spawn npx ENOENT` | Use `"command": "npx.cmd"` in your JSON config, or install globally |
+| Windows: `spawn npx ENOENT` | Use `"command": "cmd"` with `"args": ["/c", "npx", "-y", "codecov-mcp"]`, or try `"command": "npx.cmd"` |
 | Stale data | Set `CODECOV_CACHE_TTL_MS=0` to disable caching |
 
 **More troubleshooting:** [Installation Guide — Troubleshooting](docs/INSTALLATION.md#troubleshooting)

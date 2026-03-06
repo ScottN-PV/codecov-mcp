@@ -67,7 +67,9 @@ If either fails with "missing required argument" or similar parsing errors, use 
 
 ### Option B: Edit JSON Config Directly (All Platforms — Recommended for Windows)
 
-This is the most reliable method on every platform. Open your Claude Code config file and add the `codecov` entry:
+This is the most reliable method on every platform. Open your Claude Code config file and add the `codecov` entry.
+
+**macOS / Linux:**
 
 ```json
 {
@@ -83,6 +85,25 @@ This is the most reliable method on every platform. Open your Claude Code config
   }
 }
 ```
+
+**Windows (native):**
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+> **Why `cmd /c` on Windows?** Native Windows requires launching `npx` through `cmd` to ensure correct process spawning. This is the pattern documented by Anthropic for Claude Code on Windows. If you get `spawn npx ENOENT` errors with `"command": "npx"`, the `cmd /c` pattern resolves it.
 
 **Config file locations:**
 
@@ -110,6 +131,7 @@ This opens `claude_desktop_config.json` in your default editor. Add the `codecov
 {
   "mcpServers": {
     "codecov": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "codecov-mcp"],
       "env": {
@@ -119,6 +141,8 @@ This opens `claude_desktop_config.json` in your default editor. Add the `codecov
   }
 }
 ```
+
+> **Windows users:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
 
 > **Note:** If the file already has other MCP servers, add `"codecov": { ... }` inside the existing `"mcpServers"` object — don't create a second one.
 
@@ -217,6 +241,7 @@ Create `.cursor/mcp.json` in your project root:
 {
   "mcpServers": {
     "codecov": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "codecov-mcp"],
       "env": {
@@ -235,6 +260,7 @@ Edit `~/.cursor/mcp.json` to make codecov-mcp available in all projects:
 {
   "mcpServers": {
     "codecov": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "codecov-mcp"],
       "env": {
@@ -244,6 +270,8 @@ Edit `~/.cursor/mcp.json` to make codecov-mcp available in all projects:
   }
 }
 ```
+
+> **Windows users:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
 
 <details>
 <summary><strong>Config file locations by platform</strong></summary>
@@ -275,6 +303,7 @@ Edit `~/.codeium/windsurf/mcp_config.json`:
 {
   "mcpServers": {
     "codecov": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "codecov-mcp"],
       "env": {
@@ -284,6 +313,8 @@ Edit `~/.codeium/windsurf/mcp_config.json`:
   }
 }
 ```
+
+> **Windows users:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
 
 <details>
 <summary><strong>Config file locations by platform</strong></summary>
@@ -420,7 +451,16 @@ Then change the command in your config:
 
 ### Windows: "spawn npx ENOENT"
 
-Some MCP clients on Windows can't find `npx`. Use the full path:
+Some MCP clients on Windows can't find `npx` directly. Use the `cmd /c` pattern:
+
+```json
+{
+  "command": "cmd",
+  "args": ["/c", "npx", "-y", "codecov-mcp"]
+}
+```
+
+If that doesn't work, try `npx.cmd`:
 
 ```json
 {
