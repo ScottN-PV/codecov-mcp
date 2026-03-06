@@ -34,6 +34,8 @@ Pick your tool below for platform-specific setup instructions.
 <details>
 <summary><strong>Claude Code</strong></summary>
 
+<blockquote>
+
 **CLI install (macOS / Linux):**
 
 ```bash
@@ -90,10 +92,14 @@ On macOS/Linux, add `--scope project` after `add` in the first command.
 }
 ```
 
+</blockquote>
+
 </details>
 
 <details>
 <summary><strong>Codex</strong></summary>
+
+<blockquote>
 
 **CLI install (all platforms):**
 
@@ -103,10 +109,14 @@ codex mcp add codecov --env CODECOV_TOKEN=your-token-here -- npx -y codecov-mcp
 
 Config is stored in `~/.codex/config.toml` (user) or `.codex/config.toml` (project). The same config is shared with the Codex IDE extension.
 
+</blockquote>
+
 </details>
 
 <details>
 <summary><strong>Gemini CLI / Gemini Code Assist</strong></summary>
+
+<blockquote>
 
 **JSON config (all platforms)** — add to `.gemini/settings.json` (project) or `~/.gemini/settings.json` (user):
 
@@ -128,10 +138,14 @@ Config is stored in `~/.codex/config.toml` (user) or `.codex/config.toml` (proje
 
 Gemini Code Assist agent mode in VS Code is powered by Gemini CLI and uses the same config.
 
+</blockquote>
+
 </details>
 
 <details>
 <summary><strong>VS Code (GitHub Copilot)</strong></summary>
+
+<blockquote>
 
 VS Code uses `"servers"` (not `"mcpServers"`).
 
@@ -164,10 +178,14 @@ VS Code uses `"servers"` (not `"mcpServers"`).
 
 You can also use **MCP: Open User Configuration** from the command palette for user-level config.
 
+</blockquote>
+
 </details>
 
 <details>
 <summary><strong>Cursor</strong></summary>
+
+<blockquote>
 
 **JSON config (all platforms)** — create `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (user):
 
@@ -188,10 +206,14 @@ You can also use **MCP: Open User Configuration** from the command palette for u
 
 **Windows:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
 
+</blockquote>
+
 </details>
 
 <details>
 <summary><strong>Windsurf</strong></summary>
+
+<blockquote>
 
 **JSON config (all platforms)** — edit `~/.codeium/windsurf/mcp_config.json`, or add via **Windsurf Settings > Cascade > MCP Servers**:
 
@@ -211,6 +233,8 @@ You can also use **MCP: Open User Configuration** from the command palette for u
 ```
 
 **Windows:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
+
+</blockquote>
 
 </details>
 
