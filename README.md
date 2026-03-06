@@ -29,29 +29,43 @@ Go to **[Codecov Settings > Access](https://app.codecov.io/account)** and genera
 
 ### 2. Add codecov-mcp to Your MCP Client
 
-> **Windows users:** Do not copy the macOS/Linux Claude Code command. Use the [Windows config block](#claude-code-windows-native) below with `cmd /c npx`.
+Pick your tool below. Each section shows CLI commands and JSON config for every platform.
 
-#### Claude Code (macOS / Linux)
+<details>
+<summary><strong>Claude Code</strong></summary>
+
+**CLI install (macOS / Linux):**
 
 ```bash
 claude mcp add --transport stdio codecov --env CODECOV_TOKEN=your-token-here -- npx -y codecov-mcp
 ```
 
-#### Claude Code (Windows native)
+**CLI install (Windows):**
 
 ```bash
 claude mcp add codecov --env CODECOV_TOKEN=your-token-here -- cmd /c npx -y codecov-mcp
 ```
 
-If you want project-scoped config instead of user-scoped config:
+For project-scoped instead of user-scoped: add `--scope project` after `add`.
 
-```bash
-claude mcp add --scope project codecov --env CODECOV_TOKEN=your-token-here -- cmd /c npx -y codecov-mcp
+**JSON config (macOS / Linux)** — add to `~/.claude.json` or `.claude.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
 ```
 
-Why this is different: native Windows needs `cmd /c` to launch `npx` reliably for Claude Code.
-
-If the CLI flow still fails in a particular shell environment, then fall back to JSON config:
+**JSON config (Windows)** — add to `C:\Users\<username>\.claude.json` or `.claude.json` in your project root:
 
 ```json
 {
@@ -68,22 +82,25 @@ If the CLI flow still fails in a particular shell environment, then fall back to
 }
 ```
 
-#### Codex CLI
+</details>
+
+<details>
+<summary><strong>Codex CLI</strong></summary>
+
+**CLI install (all platforms):**
 
 ```bash
 codex mcp add codecov --env CODECOV_TOKEN=your-token-here -- npx -y codecov-mcp
 ```
 
-Codex stores MCP configuration in `~/.codex/config.toml` or project-scoped `.codex/config.toml`, and the same MCP configuration is shared with the Codex IDE extension.
+Config is stored in `~/.codex/config.toml` (user) or `.codex/config.toml` (project). The same config is shared with the Codex IDE extension.
 
-#### Gemini CLI / Gemini Code Assist
+</details>
 
-Create either:
+<details>
+<summary><strong>Gemini CLI / Gemini Code Assist</strong></summary>
 
-- `.gemini/settings.json` in your project, or
-- `~/.gemini/settings.json` in your home directory
-
-Then add:
+**JSON config (all platforms)** — add to `.gemini/settings.json` (project) or `~/.gemini/settings.json` (user):
 
 ```json
 {
@@ -99,11 +116,18 @@ Then add:
 }
 ```
 
-Google's docs describe Gemini CLI as an MCP-capable terminal agent, and Gemini Code Assist agent mode in VS Code is powered by Gemini CLI.
+**Windows:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
 
-#### VS Code (GitHub Copilot)
+Gemini Code Assist agent mode in VS Code is powered by Gemini CLI and uses the same config.
 
-VS Code uses `"servers"` instead of `"mcpServers"`.
+</details>
+
+<details>
+<summary><strong>VS Code (GitHub Copilot)</strong></summary>
+
+VS Code uses `"servers"` (not `"mcpServers"`).
+
+**JSON config (all platforms)** — create `.vscode/mcp.json` in your project root:
 
 ```json
 {
@@ -128,7 +152,16 @@ VS Code uses `"servers"` instead of `"mcpServers"`.
 }
 ```
 
-#### Claude Desktop, Cursor, and Windsurf
+**Windows:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
+
+You can also use **MCP: Open User Configuration** from the command palette for user-level config.
+
+</details>
+
+<details>
+<summary><strong>Cursor</strong></summary>
+
+**JSON config (all platforms)** — create `.cursor/mcp.json` (project) or `~/.cursor/mcp.json` (user):
 
 ```json
 {
@@ -145,16 +178,142 @@ VS Code uses `"servers"` instead of `"mcpServers"`.
 }
 ```
 
-Windows note for these clients: if you hit `spawn npx ENOENT`, switch to:
+**Windows:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
+
+</details>
+
+<details>
+<summary><strong>Windsurf</strong></summary>
+
+**JSON config (all platforms)** — edit `~/.codeium/windsurf/mcp_config.json`, or add via **Windsurf Settings > Cascade > MCP Servers**:
 
 ```json
 {
-  "command": "cmd",
-  "args": ["/c", "npx", "-y", "codecov-mcp"]
+  "mcpServers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
 }
 ```
 
-> **Full setup instructions** with exact file locations for every client and platform: **[Installation Guide](docs/INSTALLATION.md)**
+**Windows:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
+
+</details>
+
+<details>
+<summary><strong>Claude Desktop</strong></summary>
+
+Open Claude Desktop > **Settings > Developer > Edit Config**, then add:
+
+**JSON config (macOS / Linux):**
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+**JSON config (Windows):**
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving.
+
+</details>
+
+<details>
+<summary><strong>Cline</strong></summary>
+
+Open the Cline sidebar > **MCP Servers** icon > **Configure MCP Servers**, then add:
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+**Windows:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
+
+</details>
+
+<details>
+<summary><strong>Continue</strong></summary>
+
+Add to `.continue/config.yaml` or via the Continue settings UI:
+
+```yaml
+mcpServers:
+  - name: codecov
+    command: npx
+    args:
+      - -y
+      - codecov-mcp
+    env:
+      CODECOV_TOKEN: your-token-here
+```
+
+See the [Continue MCP docs](https://docs.continue.dev/customize/mcp-tools) for additional options.
+
+</details>
+
+<details>
+<summary><strong>Zed</strong></summary>
+
+Add to Zed settings (`settings.json` via **Zed > Settings** or **File > Settings**):
+
+```json
+{
+  "context_servers": {
+    "codecov": {
+      "command": {
+        "path": "npx",
+        "args": ["-y", "codecov-mcp"],
+        "env": {
+          "CODECOV_TOKEN": "your-token-here"
+        }
+      }
+    }
+  }
+}
+```
+
+</details>
 
 If you're in a git repo with a public GitHub/GitLab/Bitbucket remote, the server auto-detects your service, owner, and repo. Enterprise/self-hosted users should set `CODECOV_SERVICE`, `CODECOV_OWNER`, and `CODECOV_REPO` explicitly.
 
