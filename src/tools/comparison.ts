@@ -97,10 +97,16 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
   server.registerTool(
     'compare_impacted_files',
     {
-      description: 'List only files with changed coverage between two commits or a pull request (pass pullid). More efficient than full comparison when you only need to know which files got better or worse. Returns a state field: processed when complete, pending when still computing.',
+      description: 'List only files with changed coverage between two commits or a pull request (pass pullid). More efficient than full comparison when you only need to know which files got better or worse. Returns a state field: processed when complete, pending when still computing. Supports client-side pagination and filtering since the API returns all files at once.',
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...CompareParams.shape,
+        page: z.number().int().min(1).optional().default(1)
+          .describe('Page number for client-side pagination of files (1-based). Default 1.'),
+        page_size: z.number().int().min(1).max(100).optional().default(25)
+          .describe('Files per page for client-side pagination. Default 25, max 100.'),
+        min_change: z.number().min(0).optional()
+          .describe('Minimum absolute coverage change to include a file (e.g. 1.0 = only files with >= 1% change). Helps filter noise on large PRs.'),
       },
     },
     withErrorHandling(async (args) => {
@@ -116,7 +122,37 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
           _note: 'Comparison is still being computed (state: pending). Try again in a few seconds.',
         })
       }
-      return toolResult(result)
+
+      // Client-side filtering and pagination of the files array
+      let files = (result.files ?? result.impactedFiles ?? []) as Array<Record<string, unknown>>
+      const totalFiles = files.length
+
+      if (args.min_change != null && args.min_change > 0) {
+        files = files.filter(f => {
+          const diff = f.diffTotals as Record<string, unknown> | null
+          if (!diff) return true // include files with no diff data
+          const covChange = typeof diff.coverage === 'number' ? Math.abs(diff.coverage) : 0
+          return covChange >= args.min_change!
+        })
+      }
+
+      const page = args.page ?? 1
+      const pageSize = args.page_size ?? 25
+      const start = (page - 1) * pageSize
+      const paginatedFiles = files.slice(start, start + pageSize)
+
+      return toolResult({
+        state: result.state,
+        baseCommit: result.baseCommit,
+        headCommit: result.headCommit,
+        totals: result.totals,
+        totalFiles,
+        filteredFiles: files.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(files.length / pageSize),
+        files: paginatedFiles,
+      })
     }),
   )
 

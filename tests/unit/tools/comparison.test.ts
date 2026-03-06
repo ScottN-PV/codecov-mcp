@@ -63,10 +63,13 @@ describe('comparison tools', () => {
   })
 
   describe('compare_impacted_files', () => {
-    it('returns impacted files', async () => {
+    it('returns impacted files with pagination metadata', async () => {
       mockClient.get.mockResolvedValueOnce({
         state: 'processed',
-        impacted_files: [{ file_name: 'src/a.ts', coverage_diff: 5 }],
+        files: [
+          { file_name: 'src/a.ts', diff_totals: { coverage: 5 } },
+          { file_name: 'src/b.ts', diff_totals: { coverage: -2 } },
+        ],
       })
 
       const result = await client.callTool({
@@ -75,6 +78,47 @@ describe('comparison tools', () => {
       })
       const data = JSON.parse((result.content[0] as { text: string }).text)
       expect(data.state).toBe('processed')
+      expect(data.totalFiles).toBe(2)
+      expect(data.page).toBe(1)
+      expect(data.files).toHaveLength(2)
+    })
+
+    it('paginates files client-side', async () => {
+      const files = Array.from({ length: 50 }, (_, i) => ({
+        file_name: `src/file${i}.ts`,
+        diff_totals: { coverage: i },
+      }))
+      mockClient.get.mockResolvedValueOnce({ state: 'processed', files })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, page: 2, page_size: 10 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.totalFiles).toBe(50)
+      expect(data.files).toHaveLength(10)
+      expect(data.page).toBe(2)
+      expect(data.totalPages).toBe(5)
+    })
+
+    it('filters by min_change', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        files: [
+          { file_name: 'big.ts', diff_totals: { coverage: 5 } },
+          { file_name: 'small.ts', diff_totals: { coverage: 0.1 } },
+          { file_name: 'negative.ts', diff_totals: { coverage: -3 } },
+        ],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, min_change: 1.0 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.totalFiles).toBe(3)
+      expect(data.filteredFiles).toBe(2)
+      expect(data.files).toHaveLength(2)
     })
 
     it('adds note when pending', async () => {

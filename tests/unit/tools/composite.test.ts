@@ -121,7 +121,7 @@ describe('composite tools', () => {
   })
 
   describe('get_pr_coverage', () => {
-    it('combines pull details and impacted files', async () => {
+    it('combines pull details and impacted files with count', async () => {
       mockClient.get
         .mockResolvedValueOnce({
           title: 'Add auth module',
@@ -134,8 +134,8 @@ describe('composite tools', () => {
         .mockResolvedValueOnce({
           state: 'processed',
           files: [
-            { file_name: 'src/auth.ts', coverage_diff: 2.5 },
-            { file_name: 'src/login.ts', coverage_diff: -1.0 },
+            { file_name: 'src/auth.ts', diff_totals: { coverage: 2.5 } },
+            { file_name: 'src/login.ts', diff_totals: { coverage: -1.0 } },
           ],
         })
 
@@ -149,9 +149,55 @@ describe('composite tools', () => {
       expect(data.title).toBe('Add auth module')
       expect(data.state).toBe('open')
       expect(data.ciPassed).toBe(true)
+      expect(data.totalImpactedFiles).toBe(2)
       expect(data.impactedFiles).toHaveLength(2)
       expect(data.comparisonState).toBe('processed')
       expect(data._note).toBeUndefined()
+      expect(data._truncated).toBeUndefined()
+    })
+
+    it('truncates large file lists and sorts by impact', async () => {
+      const files = Array.from({ length: 30 }, (_, i) => ({
+        file_name: `src/file${i}.ts`,
+        diff_totals: { coverage: i - 15 }, // range from -15 to +14
+      }))
+      mockClient.get
+        .mockResolvedValueOnce({ title: 'Big PR', state: 'open', ci_passed: true })
+        .mockResolvedValueOnce({ state: 'processed', files })
+
+      const result = await client.callTool({
+        name: 'get_pr_coverage',
+        arguments: { pullid: 1 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+
+      expect(data.totalImpactedFiles).toBe(30)
+      expect(data.impactedFiles).toHaveLength(15)
+      expect(data._truncated).toContain('15 of 30')
+      // First file should have the largest absolute change
+      const firstFile = data.impactedFiles[0] as Record<string, unknown>
+      const firstDiff = firstFile.diffTotals as Record<string, unknown>
+      expect(Math.abs(firstDiff.coverage as number)).toBe(15)
+    })
+
+    it('respects custom max_files', async () => {
+      const files = Array.from({ length: 10 }, (_, i) => ({
+        file_name: `src/file${i}.ts`,
+        diff_totals: { coverage: i },
+      }))
+      mockClient.get
+        .mockResolvedValueOnce({ title: 'T', state: 'open' })
+        .mockResolvedValueOnce({ state: 'processed', files })
+
+      const result = await client.callTool({
+        name: 'get_pr_coverage',
+        arguments: { pullid: 1, max_files: 3 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+
+      expect(data.totalImpactedFiles).toBe(10)
+      expect(data.impactedFiles).toHaveLength(3)
+      expect(data._truncated).toContain('3 of 10')
     })
 
     it('adds note when comparison is pending', async () => {

@@ -137,10 +137,12 @@ export function registerCompositeTools(server: McpServer, config: Config, client
   server.registerTool(
     'get_pr_coverage',
     {
-      description: 'Get a comprehensive coverage summary for a pull request in a single call. Combines PR details (patch/base/head coverage) with the list of files that had coverage changes. This is the go-to tool for code review workflows — use it to answer "how does this PR affect coverage?"',
+      description: 'Get a comprehensive coverage summary for a pull request in a single call. Combines PR details (patch/base/head coverage) with the top files that had coverage changes, sorted by largest impact. This is the go-to tool for code review workflows — use it to answer "how does this PR affect coverage?"',
       inputSchema: {
         ...OwnerRepoParams.shape,
         pullid: z.number().int().describe('Pull request number.'),
+        max_files: z.number().int().min(1).max(100).optional().default(15)
+          .describe('Maximum number of impacted files to include (sorted by largest coverage change). Default 15. Use compare_impacted_files for full paginated access.'),
       },
     },
     withErrorHandling(async (args) => {
@@ -155,6 +157,21 @@ export function registerCompositeTools(server: McpServer, config: Config, client
       const pullNormalized = normalizeKeysDeep(pullData) as Record<string, unknown>
       const impactedNormalized = normalizeKeysDeep(impactedData) as Record<string, unknown>
 
+      let allFiles = ((impactedNormalized.files ?? impactedNormalized.impactedFiles ?? []) as Array<Record<string, unknown>>)
+      const totalFiles = allFiles.length
+
+      // Sort by absolute coverage change (largest impact first)
+      allFiles = allFiles.slice().sort((a, b) => {
+        const aDiff = a.diffTotals as Record<string, unknown> | null
+        const bDiff = b.diffTotals as Record<string, unknown> | null
+        const aChange = typeof aDiff?.coverage === 'number' ? Math.abs(aDiff.coverage) : 0
+        const bChange = typeof bDiff?.coverage === 'number' ? Math.abs(bDiff.coverage) : 0
+        return bChange - aChange
+      })
+
+      const maxFiles = args.max_files ?? 15
+      const truncated = allFiles.length > maxFiles
+
       const result: Record<string, unknown> = {
         pullid: args.pullid,
         title: pullNormalized.title,
@@ -163,8 +180,13 @@ export function registerCompositeTools(server: McpServer, config: Config, client
         headCoverage: pullNormalized.headTotals,
         patchCoverage: pullNormalized.patchTotals,
         ciPassed: pullNormalized.ciPassed,
-        impactedFiles: impactedNormalized.files ?? impactedNormalized.impactedFiles ?? [],
+        totalImpactedFiles: totalFiles,
+        impactedFiles: allFiles.slice(0, maxFiles),
         comparisonState: impactedNormalized.state,
+      }
+
+      if (truncated) {
+        result._truncated = `Showing top ${maxFiles} of ${totalFiles} impacted files (sorted by largest change). Use compare_impacted_files with pagination for full list.`
       }
 
       if (impactedNormalized.state === 'pending') {
