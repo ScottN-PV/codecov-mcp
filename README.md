@@ -27,18 +27,100 @@ Instead of switching to the Codecov web UI, your AI assistant can directly:
 
 Go to **[Codecov Settings > Access](https://app.codecov.io/account)** and generate an **API Access Token** (not an upload token).
 
-### 2. Add to Your MCP Client
+### 2. Add codecov-mcp to Your MCP Client
 
-**Claude Code (macOS / Linux):**
+> **Windows users:** Do not copy the macOS/Linux Claude Code command. Use the [Windows config block](#claude-code-windows-native) below with `cmd /c npx`.
+
+#### Claude Code (macOS / Linux)
+
 ```bash
 claude mcp add --transport stdio codecov \
   --env CODECOV_TOKEN=your-token-here \
   -- npx -y codecov-mcp
 ```
 
-**All other clients (Claude Desktop, Cursor, Windsurf, Claude Code on Windows) — edit JSON config:**
+#### Claude Code (Windows native)
 
-Add this to your client's MCP config file (see [full installation guide](docs/INSTALLATION.md) for exact file locations):
+Use JSON config instead of `claude mcp add`.
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+Why this is different: native Windows needs `cmd /c` to launch `npx` reliably for Claude Code.
+
+#### Codex CLI
+
+```bash
+codex mcp add codecov --env CODECOV_TOKEN=your-token-here -- npx -y codecov-mcp
+```
+
+Codex stores MCP configuration in `~/.codex/config.toml` or project-scoped `.codex/config.toml`, and the same MCP configuration is shared with the Codex IDE extension.
+
+#### Gemini CLI / Gemini Code Assist
+
+Create either:
+
+- `.gemini/settings.json` in your project, or
+- `~/.gemini/settings.json` in your home directory
+
+Then add:
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+Google's docs describe Gemini CLI as an MCP-capable terminal agent, and Gemini Code Assist agent mode in VS Code is powered by Gemini CLI.
+
+#### VS Code (GitHub Copilot)
+
+VS Code uses `"servers"` instead of `"mcpServers"`.
+
+```json
+{
+  "servers": {
+    "codecov": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "${input:codecov-token}"
+      }
+    }
+  },
+  "inputs": [
+    {
+      "id": "codecov-token",
+      "type": "promptString",
+      "description": "Codecov API Token",
+      "password": true
+    }
+  ]
+}
+```
+
+#### Claude Desktop, Cursor, and Windsurf
 
 ```json
 {
@@ -55,11 +137,18 @@ Add this to your client's MCP config file (see [full installation guide](docs/IN
 }
 ```
 
-> **VS Code users:** VS Code uses a different config format (`"servers"` instead of `"mcpServers"`). See the [VS Code section](docs/INSTALLATION.md#vs-code-github-copilot) for the correct setup.
->
-> **Windows users:** Use `"command": "cmd"` and `"args": ["/c", "npx", "-y", "codecov-mcp"]` instead. See the [Windows setup section](docs/INSTALLATION.md#option-b-edit-json-config-directly-all-platforms--recommended-for-windows) for the exact config.
+Windows note for these clients: if you hit `spawn npx ENOENT`, switch to:
 
-That's it. If you're in a git repo with a public GitHub/GitLab/Bitbucket remote, the server auto-detects your service, owner, and repo. Enterprise/self-hosted users should set `CODECOV_SERVICE`, `CODECOV_OWNER`, and `CODECOV_REPO` explicitly.
+```json
+{
+  "command": "cmd",
+  "args": ["/c", "npx", "-y", "codecov-mcp"]
+}
+```
+
+> **Full setup instructions** with exact file locations for every client and platform: **[Installation Guide](docs/INSTALLATION.md)**
+
+If you're in a git repo with a public GitHub/GitLab/Bitbucket remote, the server auto-detects your service, owner, and repo. Enterprise/self-hosted users should set `CODECOV_SERVICE`, `CODECOV_OWNER`, and `CODECOV_REPO` explicitly.
 
 ### 3. Start Using It
 
@@ -74,8 +163,6 @@ Ask your AI agent things like:
 > "What lines in src/auth.ts aren't covered by tests?"
 >
 > "Are there any flaky tests?"
-
-> **📖 Full setup instructions** for every client and platform: **[Installation Guide](docs/INSTALLATION.md)**
 
 ---
 

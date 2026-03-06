@@ -9,9 +9,14 @@ Complete setup instructions for every supported MCP client and platform.
 - [Step 1: Get a Codecov API Token](#step-1-get-a-codecov-api-token)
 - [Claude Code (CLI)](#claude-code-cli)
 - [Claude Desktop](#claude-desktop)
+- [Codex CLI](#codex-cli)
+- [Gemini CLI / Gemini Code Assist](#gemini-cli--gemini-code-assist)
 - [VS Code (GitHub Copilot)](#vs-code-github-copilot)
 - [Cursor](#cursor)
 - [Windsurf](#windsurf)
+- [Cline](#cline)
+- [Continue](#continue)
+- [Zed](#zed)
 - [Other MCP Clients](#other-mcp-clients)
 - [Configuration Reference](#configuration-reference)
 - [Verifying the Installation](#verifying-the-installation)
@@ -164,6 +169,47 @@ C:\Users\<username>\AppData\Local\Packages\Claude_<id>\LocalCache\Roaming\Claude
 Use the **Settings > Developer > Edit Config** button to ensure you're editing the correct file.
 
 </details>
+
+---
+
+## Codex CLI
+
+Codex CLI supports MCP servers via the `codex mcp add` command. The same MCP configuration is shared with the Codex IDE extension.
+
+```bash
+codex mcp add codecov --env CODECOV_TOKEN=your-token-here -- npx -y codecov-mcp
+```
+
+Codex stores configuration in `~/.codex/config.toml` (user-level) or `.codex/config.toml` (project-level).
+
+---
+
+## Gemini CLI / Gemini Code Assist
+
+Gemini CLI is Google's MCP-capable terminal agent. Gemini Code Assist agent mode in VS Code is powered by Gemini CLI and uses the same MCP configuration.
+
+Create either:
+
+- `.gemini/settings.json` in your project root (project-level), or
+- `~/.gemini/settings.json` in your home directory (user-level)
+
+Then add:
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+> **Windows users:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
 
 ---
 
@@ -326,6 +372,78 @@ Edit `~/.codeium/windsurf/mcp_config.json`:
 | Windows  | `C:\Users\<username>\.codeium\windsurf\mcp_config.json` |
 
 </details>
+
+---
+
+## Cline
+
+Cline is a VS Code extension with deep MCP integration.
+
+1. Open the Cline sidebar in VS Code
+2. Click the **MCP Servers** icon
+3. Click **Configure MCP Servers** to open `cline_mcp_settings.json`
+4. Add the codecov server:
+
+```json
+{
+  "mcpServers": {
+    "codecov": {
+      "command": "npx",
+      "args": ["-y", "codecov-mcp"],
+      "env": {
+        "CODECOV_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
+```
+
+> **Windows users:** If you get `spawn npx ENOENT`, change `"command"` to `"cmd"` and `"args"` to `["/c", "npx", "-y", "codecov-mcp"]`.
+
+---
+
+## Continue
+
+Continue is an open-source AI code assistant for VS Code and JetBrains with MCP support.
+
+Add the MCP server to your Continue config (`.continue/config.yaml` or via the Continue settings UI):
+
+```yaml
+mcpServers:
+  - name: codecov
+    command: npx
+    args:
+      - -y
+      - codecov-mcp
+    env:
+      CODECOV_TOKEN: your-token-here
+```
+
+Refer to the [Continue MCP docs](https://docs.continue.dev/customize/mcp-tools) for additional configuration options.
+
+---
+
+## Zed
+
+Zed has built-in MCP support. Add the following to your Zed settings (`settings.json`):
+
+```json
+{
+  "context_servers": {
+    "codecov": {
+      "command": {
+        "path": "npx",
+        "args": ["-y", "codecov-mcp"],
+        "env": {
+          "CODECOV_TOKEN": "your-token-here"
+        }
+      }
+    }
+  }
+}
+```
+
+Open Zed settings via **Zed > Settings** (macOS) or **File > Settings** (Linux).
 
 ---
 
