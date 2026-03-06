@@ -121,6 +121,58 @@ describe('comparison tools', () => {
       expect(data.files).toHaveLength(2)
     })
 
+    it('includes files with null or missing diff coverage when filtering', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        files: [
+          { file_name: 'no-diff.ts' },
+          { file_name: 'null-cov.ts', diff_totals: { coverage: null } },
+          { file_name: 'big.ts', diff_totals: { coverage: 5 } },
+          { file_name: 'small.ts', diff_totals: { coverage: 0.1 } },
+        ],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, min_change: 1.0 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.filteredFiles).toBe(3)
+    })
+
+    it('adds note for out-of-range page', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        files: [
+          { file_name: 'a.ts', diff_totals: { coverage: 1 } },
+          { file_name: 'b.ts', diff_totals: { coverage: 2 } },
+        ],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, page: 99, page_size: 25 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.files).toHaveLength(0)
+      expect(data._note).toContain('out of range')
+      expect(data.totalPages).toBe(1)
+    })
+
+    it('uses impactedFiles key when files key is absent', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        impacted_files: [{ file_name: 'x.ts', diff_totals: { coverage: 1 } }],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.totalFiles).toBe(1)
+    })
+
     it('adds note when pending', async () => {
       mockClient.get.mockResolvedValueOnce({ state: 'pending' })
 

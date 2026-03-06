@@ -200,6 +200,27 @@ describe('composite tools', () => {
       expect(data._truncated).toContain('3 of 10')
     })
 
+    it('sorts files with null diffTotals to the end', async () => {
+      mockClient.get
+        .mockResolvedValueOnce({ title: 'T', state: 'open' })
+        .mockResolvedValueOnce({
+          state: 'processed',
+          files: [
+            { file_name: 'no-diff.ts' },
+            { file_name: 'big.ts', diff_totals: { coverage: 10 } },
+            { file_name: 'null-cov.ts', diff_totals: { coverage: null } },
+          ],
+        })
+
+      const result = await client.callTool({
+        name: 'get_pr_coverage',
+        arguments: { pullid: 1 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      // big.ts (|10|) should be first, null/missing should sort after
+      expect((data.impactedFiles[0] as Record<string, unknown>).fileName).toBe('big.ts')
+    })
+
     it('adds note when comparison is pending', async () => {
       mockClient.get
         .mockResolvedValueOnce({

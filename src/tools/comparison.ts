@@ -131,17 +131,19 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
         files = files.filter(f => {
           const diff = f.diffTotals as Record<string, unknown> | null
           if (!diff) return true // include files with no diff data
-          const covChange = typeof diff.coverage === 'number' ? Math.abs(diff.coverage) : 0
+          const covChange = typeof diff.coverage === 'number' ? Math.abs(diff.coverage) : null
+          if (covChange === null) return true // include files with non-numeric coverage
           return covChange >= args.min_change!
         })
       }
 
       const page = args.page ?? 1
       const pageSize = args.page_size ?? 25
+      const totalPages = Math.ceil(files.length / pageSize)
       const start = (page - 1) * pageSize
       const paginatedFiles = files.slice(start, start + pageSize)
 
-      return toolResult({
+      const response: Record<string, unknown> = {
         state: result.state,
         baseCommit: result.baseCommit,
         headCommit: result.headCommit,
@@ -150,9 +152,15 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
         filteredFiles: files.length,
         page,
         pageSize,
-        totalPages: Math.ceil(files.length / pageSize),
+        totalPages,
         files: paginatedFiles,
-      })
+      }
+
+      if (page > totalPages && totalPages > 0) {
+        response._note = `Page ${page} is out of range. There are only ${totalPages} page(s) available.`
+      }
+
+      return toolResult(response)
     }),
   )
 
