@@ -165,7 +165,7 @@ export function registerCoverageTools(server: McpServer, config: Config, client:
       if (args.flag) params.flag = args.flag
 
       const data = await client.get<Record<string, unknown>>(
-        `/api/v2/${service}/${owner}/repos/${repo}/file_report/${args.file_path}/`,
+        `/api/v2/${service}/${owner}/repos/${repo}/file_report/${args.file_path}`,
         params,
       )
 

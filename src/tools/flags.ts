@@ -60,7 +60,20 @@ export function registerFlagTools(server: McpServer, config: Config, client: Cod
         `/api/v2/${service}/${owner}/repos/${repo}/flags/${encodeURIComponent(args.flag)}/coverage/`,
         params,
       )
-      return toolResult(normalizeKeysDeep(data))
+      const normalized = normalizeKeysDeep(data) as Record<string, unknown>
+
+      // API may return paginated results or just a URL reference with no data
+      if (Array.isArray(normalized.results)) {
+        return toolResult(normalized)
+      }
+      return toolResult({
+        count: 0,
+        next: null,
+        previous: null,
+        results: [],
+        totalPages: 1,
+        _note: 'No trend data available for this flag in the requested time range.',
+      })
     }),
   )
 }

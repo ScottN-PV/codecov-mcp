@@ -115,7 +115,7 @@ export function registerCompositeTools(server: McpServer, config: Config, client
         client.list<Record<string, unknown>>(`${basePath}/pulls/`, { state: 'open', page_size: 1 }),
       ])
 
-      const trendResults = (trendData as Record<string, unknown>).results as Array<Record<string, unknown>> | undefined
+      const trendResults = trendData.results as Array<Record<string, unknown>> | undefined
       const trend = computeTrend(trendResults)
 
       const repoNormalized = normalizeKeysDeep(repoData) as Record<string, unknown>

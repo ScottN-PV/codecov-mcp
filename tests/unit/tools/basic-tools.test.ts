@@ -232,6 +232,18 @@ describe('flag tools', () => {
     const data = JSON.parse((result.content[0] as { text: string }).text)
     expect(data.results).toHaveLength(1)
   })
+
+  it('get_flag_coverage_trend handles URL-only response gracefully', async () => {
+    mockClient.get.mockResolvedValueOnce({ coverage: 'http://api.codecov.io/some/url' })
+    const result = await client.callTool({
+      name: 'get_flag_coverage_trend',
+      arguments: { flag: 'unit', interval: '1d' },
+    })
+    const data = JSON.parse((result.content[0] as { text: string }).text)
+    expect(data.count).toBe(0)
+    expect(data.results).toEqual([])
+    expect(data._note).toContain('No trend data')
+  })
 })
 
 describe('component tools', () => {
@@ -250,6 +262,14 @@ describe('component tools', () => {
     const result = await client.callTool({ name: 'list_components', arguments: {} })
     const data = JSON.parse((result.content[0] as { text: string }).text)
     expect(data.components).toHaveLength(1)
+  })
+
+  it('list_components handles empty/missing results gracefully', async () => {
+    mockClient.list.mockResolvedValueOnce({ count: undefined, results: undefined })
+    const result = await client.callTool({ name: 'list_components', arguments: {} })
+    const data = JSON.parse((result.content[0] as { text: string }).text)
+    expect(data.count).toBe(0)
+    expect(data.components).toEqual([])
   })
 })
 

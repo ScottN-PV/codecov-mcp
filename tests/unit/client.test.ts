@@ -136,6 +136,25 @@ describe('CodecovClient', () => {
       expect((init as RequestInit).headers).toHaveProperty('Content-Type', 'application/yaml')
       expect(result).toEqual({ valid: true })
     })
+
+    it('handles text-prefixed JSON response (e.g. "Valid!\\n\\n{json}")', async () => {
+      const body = 'Valid!\n\n{"result": "All good"}'
+      fetchSpy.mockResolvedValueOnce(new Response(body, { status: 200 }))
+
+      const client = new CodecovClient(makeConfig({ token: undefined }), new LRUCache(300000))
+      const result = await client.postPublic<{ result: string }>('https://api.codecov.io/validate', 'yaml: content')
+
+      expect(result).toEqual({ result: 'All good' })
+    })
+
+    it('throws on completely non-JSON response', async () => {
+      fetchSpy.mockResolvedValueOnce(new Response('Something went wrong', { status: 200 }))
+
+      const client = new CodecovClient(makeConfig({ token: undefined }), new LRUCache(300000))
+      await expect(
+        client.postPublic('https://api.codecov.io/validate', 'bad: yaml'),
+      ).rejects.toThrow('Unexpected response')
+    })
   })
 
   describe('retry', () => {
