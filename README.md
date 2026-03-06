@@ -39,7 +39,19 @@ claude mcp add --transport stdio codecov --env CODECOV_TOKEN=your-token-here -- 
 
 #### Claude Code (Windows native)
 
-Use JSON config instead of `claude mcp add`.
+```bash
+claude mcp add codecov --env CODECOV_TOKEN=your-token-here -- cmd /c npx -y codecov-mcp
+```
+
+If you want project-scoped config instead of user-scoped config:
+
+```bash
+claude mcp add --scope project codecov --env CODECOV_TOKEN=your-token-here -- cmd /c npx -y codecov-mcp
+```
+
+Why this is different: native Windows needs `cmd /c` to launch `npx` reliably for Claude Code.
+
+If the CLI flow still fails in a particular shell environment, then fall back to JSON config:
 
 ```json
 {
@@ -55,8 +67,6 @@ Use JSON config instead of `claude mcp add`.
   }
 }
 ```
-
-Why this is different: native Windows needs `cmd /c` to launch `npx` reliably for Claude Code.
 
 #### Codex CLI
 

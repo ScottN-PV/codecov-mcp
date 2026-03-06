@@ -49,14 +49,21 @@ Claude Code can be configured via the `claude mcp add` CLI command or by editing
 claude mcp add --transport stdio codecov --env CODECOV_TOKEN=your-token-here -- npx -y codecov-mcp
 ```
 
-<details>
-<summary><strong>Windows CLI command (may not work reliably)</strong></summary>
+#### Windows native CLI command
 
-The same command works in CMD. In PowerShell, quoting issues may cause failures. If you get "missing required argument" or similar parsing errors, use Option B instead.
+```bash
+claude mcp add codecov --env CODECOV_TOKEN=your-token-here -- cmd /c npx -y codecov-mcp
+```
 
-</details>
+For project-scoped config:
 
-### Option B: Edit JSON Config Directly (All Platforms — Recommended for Windows)
+```bash
+claude mcp add --scope project codecov --env CODECOV_TOKEN=your-token-here -- cmd /c npx -y codecov-mcp
+```
+
+If the CLI flow fails in your shell environment (e.g., PowerShell quoting issues), use Option B instead.
+
+### Option B: Edit JSON Config Directly (All Platforms — Fallback for Windows)
 
 This is the most reliable method on every platform. Open your Claude Code config file and add the `codecov` entry.
 
