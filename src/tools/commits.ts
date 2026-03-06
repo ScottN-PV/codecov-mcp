@@ -12,6 +12,7 @@ export function registerCommitTools(server: McpServer, config: Config, client: C
     'list_commits',
     {
       description: 'List commits for a repository with their coverage totals. Filterable by branch. Use this to track coverage changes over time at the commit level.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...BranchParam.shape,
@@ -41,6 +42,7 @@ export function registerCommitTools(server: McpServer, config: Config, client: C
     'get_commit',
     {
       description: 'Get detailed coverage data for a specific commit, including total lines, hits, misses, and partial coverage counts.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         sha: z.string().describe('Commit SHA.'),
@@ -59,6 +61,7 @@ export function registerCommitTools(server: McpServer, config: Config, client: C
     'list_commit_uploads',
     {
       description: 'List coverage uploads for a specific commit. Shows individual upload sessions — useful for debugging CI coverage reporting issues.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         sha: z.string().describe('Commit SHA.'),

@@ -30,8 +30,12 @@ export class CodecovClient {
   async patch<T>(path: string, body: Record<string, unknown>): Promise<T> {
     const url = this.buildUrl(path)
     const result = await this.request<T>('PATCH', url, JSON.stringify(body))
-    // Invalidate cache for the resource path
+    // Invalidate cache for the resource path and its parent collection
     this.cache.invalidate(path)
+    const collectionPath = path.replace(/\/[^/]+\/$/, '/')
+    if (collectionPath !== path) {
+      this.cache.invalidate(collectionPath)
+    }
     return result
   }
 

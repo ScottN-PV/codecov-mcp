@@ -12,6 +12,7 @@ export function registerTestAnalyticsTools(server: McpServer, config: Config, cl
     'list_test_analytics',
     {
       description: 'List test results with analytics data for a repository. Shows test names, pass/fail counts, average duration, and failure rate. Filterable by outcome, branch, and test name. Use this to find slow, flaky, or failing tests.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...BranchParam.shape,

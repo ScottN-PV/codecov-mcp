@@ -12,6 +12,7 @@ export function registerCoverageTools(server: McpServer, config: Config, client:
     'get_coverage_trend',
     {
       description: 'Get time-series coverage data showing how overall coverage percentage changes over time. Returns min/max/avg coverage per interval. Use this to track whether coverage is improving or declining.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...BranchParam.shape,
@@ -45,6 +46,7 @@ export function registerCoverageTools(server: McpServer, config: Config, client:
     'get_coverage_totals',
     {
       description: 'Get the coverage summary for a commit — overall coverage percentage, total lines, hits, misses, partials, branches, methods, and complexity. Returns only the totals object by default (context-efficient). Set include_files=true to also get per-file stats. Filterable by flag, path prefix, or component. Note: flag filtering may not take effect on this endpoint — use get_coverage_tree or compare_flags for reliable flag-level data.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...ShaParam.shape,
@@ -83,6 +85,7 @@ export function registerCoverageTools(server: McpServer, config: Config, client:
     'get_coverage_report',
     {
       description: 'Get a full coverage report for a commit — per-file coverage data with line-level detail. Use get_coverage_totals for just the summary numbers. Use get_file_coverage for a single file. Use get_coverage_tree for a hierarchical directory view.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...ShaParam.shape,
@@ -117,6 +120,7 @@ export function registerCoverageTools(server: McpServer, config: Config, client:
     'get_coverage_tree',
     {
       description: 'Get hierarchical coverage data organized by directory structure. Returns coverage percentages at each directory level. Use depth to control how many levels deep. More useful than per-file listing for large repos to identify which parts of the codebase have the lowest coverage.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...ShaParam.shape,
@@ -149,6 +153,7 @@ export function registerCoverageTools(server: McpServer, config: Config, client:
     'get_file_coverage',
     {
       description: 'Get line-by-line coverage data for a single file. Returns both the full line coverage array AND a computed uncoveredLines array for token efficiency. Use this to find exactly which lines need tests.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         file_path: z.string().describe('File path relative to repo root (e.g. "src/utils/auth.ts").'),

@@ -12,6 +12,7 @@ export function makeConfig(overrides: Partial<Config> = {}): Config {
     timeoutMs: 5000,
     maxRetries: 0,
     cacheTtlMs: 300000,
+    enableAdminTools: false,
     ...overrides,
   }
 }

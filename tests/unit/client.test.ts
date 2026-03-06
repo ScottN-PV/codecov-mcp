@@ -11,6 +11,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
     timeoutMs: 5000,
     maxRetries: 0,
     cacheTtlMs: 300000,
+    enableAdminTools: false,
     ...overrides,
   }
 }
@@ -120,6 +121,25 @@ describe('CodecovClient', () => {
       expect(cache.size).toBe(1)
 
       await client.patch('/api/v2/test/', { updated: true })
+      expect(cache.size).toBe(0)
+    })
+
+    it('invalidates parent collection cache on PATCH', async () => {
+      fetchSpy
+        .mockResolvedValueOnce(new Response(JSON.stringify({ users: [] }), { status: 200 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'u1' }), { status: 200 }))
+        .mockResolvedValueOnce(new Response(JSON.stringify({ id: 'u1', activated: false }), { status: 200 }))
+
+      const cache = new LRUCache(300000)
+      const client = new CodecovClient(makeConfig(), cache)
+
+      // Cache both the collection and individual resource
+      await client.get('/api/v2/github/owner/users/')
+      await client.get('/api/v2/github/owner/users/u1/')
+      expect(cache.size).toBe(2)
+
+      // PATCH the individual resource — should clear both
+      await client.patch('/api/v2/github/owner/users/u1/', { activated: false })
       expect(cache.size).toBe(0)
     })
   })

@@ -11,6 +11,7 @@ export function registerComponentTools(server: McpServer, config: Config, client
     'list_components',
     {
       description: 'List coverage components for a repository with their current coverage percentages. Components are logical groupings defined in codecov.yaml (e.g. frontend, backend, shared).',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...PaginationParams.shape,

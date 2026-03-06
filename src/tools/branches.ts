@@ -12,6 +12,7 @@ export function registerBranchTools(server: McpServer, config: Config, client: C
     'list_branches',
     {
       description: 'List branches for a repository with their latest coverage data. Useful for comparing coverage across branches.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ordering: z.string().optional().describe('Sort field (e.g. "-updatestamp", "name").'),
@@ -43,6 +44,7 @@ export function registerBranchTools(server: McpServer, config: Config, client: C
     'get_branch',
     {
       description: 'Get coverage details for a specific branch. Returns the latest commit SHA and coverage totals for that branch.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         branch: z.string().describe('Branch name.'),

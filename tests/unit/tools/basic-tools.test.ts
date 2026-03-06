@@ -68,6 +68,19 @@ describe('user tools', () => {
     const data = JSON.parse((result.content[0] as { text: string }).text)
     expect(data.username).toBe('user1')
   })
+})
+
+describe('admin user tools (enableAdminTools=true)', () => {
+  let client: Client
+  let mockClient: CodecovClient & { get: ReturnType<typeof vi.fn>; list: ReturnType<typeof vi.fn>; patch: ReturnType<typeof vi.fn> }
+
+  beforeEach(async () => {
+    const { makeConfig } = await import('../../helpers.js')
+    const ctx = await createTestClient(registerUserTools, makeConfig({ enableAdminTools: true }))
+    client = ctx.client
+    mockClient = ctx.mockClient
+  })
+  afterEach(() => vi.restoreAllMocks())
 
   it('update_user patches activation status', async () => {
     mockClient.patch.mockResolvedValueOnce({ username: 'user1', activated: false })
@@ -84,6 +97,17 @@ describe('user tools', () => {
     const result = await client.callTool({ name: 'list_user_sessions', arguments: {} })
     const data = JSON.parse((result.content[0] as { text: string }).text)
     expect(data.sessions).toHaveLength(1)
+  })
+
+  it('admin tools are not registered when enableAdminTools is false', async () => {
+    const { makeConfig: mk } = await import('../../helpers.js')
+    const ctx = await createTestClient(registerUserTools, mk({ enableAdminTools: false }))
+    const { tools } = await ctx.client.listTools()
+    const names = tools.map(t => t.name)
+    expect(names).not.toContain('update_user')
+    expect(names).not.toContain('list_user_sessions')
+    expect(names).toContain('list_users')
+    expect(names).toContain('get_user')
   })
 })
 
