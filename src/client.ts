@@ -42,7 +42,19 @@ export class CodecovClient {
       headers: { 'Content-Type': contentType },
       body,
     })
-    return response.json() as Promise<T>
+    const text = await response.text()
+    try {
+      return JSON.parse(text) as T
+    } catch {
+      // Handle non-JSON responses (e.g. validate returns "Valid!\n\n{json}")
+      const jsonMatch = /\{[\s\S]*\}/.exec(text)
+      if (jsonMatch) {
+        try {
+          return JSON.parse(jsonMatch[0]) as T
+        } catch { /* regex captured non-JSON; fall through */ }
+      }
+      throw new Error(`Unexpected response: ${text.slice(0, 200)}`)
+    }
   }
 
   private buildUrl(path: string, params?: QueryParams): URL {

@@ -63,10 +63,13 @@ describe('comparison tools', () => {
   })
 
   describe('compare_impacted_files', () => {
-    it('returns impacted files', async () => {
+    it('returns impacted files with pagination metadata', async () => {
       mockClient.get.mockResolvedValueOnce({
         state: 'processed',
-        impacted_files: [{ file_name: 'src/a.ts', coverage_diff: 5 }],
+        files: [
+          { file_name: 'src/a.ts', diff_totals: { coverage: 5 } },
+          { file_name: 'src/b.ts', diff_totals: { coverage: -2 } },
+        ],
       })
 
       const result = await client.callTool({
@@ -75,6 +78,146 @@ describe('comparison tools', () => {
       })
       const data = JSON.parse((result.content[0] as { text: string }).text)
       expect(data.state).toBe('processed')
+      expect(data.totalFiles).toBe(2)
+      expect(data.page).toBe(1)
+      expect(data.files).toHaveLength(2)
+    })
+
+    it('paginates files client-side', async () => {
+      const files = Array.from({ length: 50 }, (_, i) => ({
+        file_name: `src/file${i}.ts`,
+        diff_totals: { coverage: i },
+      }))
+      mockClient.get.mockResolvedValueOnce({ state: 'processed', files })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, page: 2, page_size: 10 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.totalFiles).toBe(50)
+      expect(data.files).toHaveLength(10)
+      expect(data.page).toBe(2)
+      expect(data.totalPages).toBe(5)
+    })
+
+    it('filters by min_change', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        files: [
+          { file_name: 'big.ts', diff_totals: { coverage: 5 } },
+          { file_name: 'small.ts', diff_totals: { coverage: 0.1 } },
+          { file_name: 'negative.ts', diff_totals: { coverage: -3 } },
+        ],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, min_change: 1.0 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.totalFiles).toBe(3)
+      expect(data.filteredFiles).toBe(2)
+      expect(data.files).toHaveLength(2)
+    })
+
+    it('includes files with null or missing diff coverage when filtering', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        files: [
+          { file_name: 'no-diff.ts' },
+          { file_name: 'null-cov.ts', diff_totals: { coverage: null } },
+          { file_name: 'big.ts', diff_totals: { coverage: 5 } },
+          { file_name: 'small.ts', diff_totals: { coverage: 0.1 } },
+        ],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, min_change: 1.0 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.filteredFiles).toBe(3)
+    })
+
+    it('adds note for out-of-range page', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        files: [
+          { file_name: 'a.ts', diff_totals: { coverage: 1 } },
+          { file_name: 'b.ts', diff_totals: { coverage: 2 } },
+        ],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, page: 99, page_size: 25 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.files).toHaveLength(0)
+      expect(data._note).toContain('out of range')
+      expect(data.totalPages).toBe(1)
+    })
+
+    it('adds note when all files filtered out and page > 1', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        files: [
+          { file_name: 'tiny.ts', diff_totals: { coverage: 0.01 } },
+        ],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, min_change: 10.0, page: 2 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.filteredFiles).toBe(0)
+      expect(data._note).toContain('No files matched')
+    })
+
+    it('preserves API fields like diff in response', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        base_commit: 'abc123',
+        head_commit: 'def456',
+        diff: { url: 'https://example.com/diff' },
+        files: [{ file_name: 'a.ts' }],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.diff).toEqual({ url: 'https://example.com/diff' })
+      expect(data.baseCommit).toBe('abc123')
+    })
+
+    it('handles response with no files or impactedFiles keys', async () => {
+      mockClient.get.mockResolvedValueOnce({ state: 'processed' })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.totalFiles).toBe(0)
+      expect(data.files).toHaveLength(0)
+    })
+
+    it('uses impactedFiles key when files key is absent', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        impacted_files: [{ file_name: 'x.ts', diff_totals: { coverage: 1 } }],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.totalFiles).toBe(1)
     })
 
     it('adds note when pending', async () => {

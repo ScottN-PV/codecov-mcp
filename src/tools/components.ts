@@ -23,8 +23,8 @@ export function registerComponentTools(server: McpServer, config: Config, client
         { page: args.page ?? 1, page_size: args.page_size ?? 25 },
       )
       return toolResult({
-        count: data.count,
-        components: data.results.map(r => normalizeKeysDeep(r)),
+        count: data.count ?? 0,
+        components: (data.results ?? []).map(r => normalizeKeysDeep(r)),
       })
     }),
   )
