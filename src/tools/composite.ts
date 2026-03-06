@@ -180,7 +180,7 @@ export function registerCompositeTools(server: McpServer, config: Config, client
         headCoverage: pullNormalized.headTotals,
         patchCoverage: pullNormalized.patchTotals,
         ciPassed: pullNormalized.ciPassed,
-        totalImpactedFiles: totalFiles,
+        totalImpactedFiles: impactedNormalized.state === 'pending' ? null : totalFiles,
         impactedFiles: allFiles.slice(0, maxFiles),
         comparisonState: impactedNormalized.state,
       }

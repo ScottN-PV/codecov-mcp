@@ -48,7 +48,11 @@ export class CodecovClient {
     } catch {
       // Handle non-JSON responses (e.g. validate returns "Valid!\n\n{json}")
       const jsonMatch = /\{[\s\S]*\}/.exec(text)
-      if (jsonMatch) return JSON.parse(jsonMatch[0]) as T
+      if (jsonMatch) {
+        try {
+          return JSON.parse(jsonMatch[0]) as T
+        } catch { /* regex captured non-JSON; fall through */ }
+      }
       throw new Error(`Unexpected response: ${text.slice(0, 200)}`)
     }
   }

@@ -71,7 +71,7 @@ export function registerFlagTools(server: McpServer, config: Config, client: Cod
         next: null,
         previous: null,
         results: [],
-        totalPages: 1,
+        totalPages: 0,
         _note: 'No trend data available for this flag in the requested time range.',
       })
     }),

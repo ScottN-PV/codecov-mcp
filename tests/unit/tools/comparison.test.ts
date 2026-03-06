@@ -159,6 +159,41 @@ describe('comparison tools', () => {
       expect(data.totalPages).toBe(1)
     })
 
+    it('adds note when all files filtered out and page > 1', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        files: [
+          { file_name: 'tiny.ts', diff_totals: { coverage: 0.01 } },
+        ],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5, min_change: 10.0, page: 2 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.filteredFiles).toBe(0)
+      expect(data._note).toContain('No files matched')
+    })
+
+    it('preserves API fields like diff in response', async () => {
+      mockClient.get.mockResolvedValueOnce({
+        state: 'processed',
+        base_commit: 'abc123',
+        head_commit: 'def456',
+        diff: { url: 'https://example.com/diff' },
+        files: [{ file_name: 'a.ts' }],
+      })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.diff).toEqual({ url: 'https://example.com/diff' })
+      expect(data.baseCommit).toBe('abc123')
+    })
+
     it('handles response with no files or impactedFiles keys', async () => {
       mockClient.get.mockResolvedValueOnce({ state: 'processed' })
 

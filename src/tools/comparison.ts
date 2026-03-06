@@ -144,10 +144,7 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
       const paginatedFiles = files.slice(start, start + pageSize)
 
       const response: Record<string, unknown> = {
-        state: result.state,
-        baseCommit: result.baseCommit,
-        headCommit: result.headCommit,
-        totals: result.totals,
+        ...result,
         totalFiles,
         filteredFiles: files.length,
         page,
@@ -156,7 +153,9 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
         files: paginatedFiles,
       }
 
-      if (page > totalPages && totalPages > 0) {
+      if (page > 1 && totalPages === 0) {
+        response._note = 'No files matched the filter criteria. There are 0 pages available.'
+      } else if (page > totalPages && totalPages > 0) {
         response._note = `Page ${page} is out of range. There are only ${totalPages} page(s) available.`
       }
 

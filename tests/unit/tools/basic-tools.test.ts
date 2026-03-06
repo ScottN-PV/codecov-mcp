@@ -243,6 +243,7 @@ describe('flag tools', () => {
     expect(data.count).toBe(0)
     expect(data.results).toEqual([])
     expect(data._note).toContain('No trend data')
+    expect(data.totalPages).toBe(0)
   })
 })
 
