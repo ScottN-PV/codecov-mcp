@@ -46,27 +46,13 @@ Claude Code can be configured via the `claude mcp add` CLI command or by editing
 ### Option A: CLI Command (macOS / Linux)
 
 ```bash
-claude mcp add --transport stdio codecov \
-  --env CODECOV_TOKEN=your-token-here \
-  -- npx -y codecov-mcp
-```
-
-<details>
-<summary><strong>Windows CLI commands (may not work reliably)</strong></summary>
-
-PowerShell:
-```powershell
-claude mcp add --transport stdio codecov `
-  --env CODECOV_TOKEN=your-token-here `
-  -- npx -y codecov-mcp
-```
-
-CMD (single line):
-```cmd
 claude mcp add --transport stdio codecov --env CODECOV_TOKEN=your-token-here -- npx -y codecov-mcp
 ```
 
-If either fails with "missing required argument" or similar parsing errors, use Option B instead.
+<details>
+<summary><strong>Windows CLI command (may not work reliably)</strong></summary>
+
+The same command works in CMD. In PowerShell, quoting issues may cause failures. If you get "missing required argument" or similar parsing errors, use Option B instead.
 
 </details>
 

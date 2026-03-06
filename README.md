@@ -34,9 +34,7 @@ Go to **[Codecov Settings > Access](https://app.codecov.io/account)** and genera
 #### Claude Code (macOS / Linux)
 
 ```bash
-claude mcp add --transport stdio codecov \
-  --env CODECOV_TOKEN=your-token-here \
-  -- npx -y codecov-mcp
+claude mcp add --transport stdio codecov --env CODECOV_TOKEN=your-token-here -- npx -y codecov-mcp
 ```
 
 #### Claude Code (Windows native)
