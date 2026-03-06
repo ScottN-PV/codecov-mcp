@@ -159,6 +159,18 @@ describe('comparison tools', () => {
       expect(data.totalPages).toBe(1)
     })
 
+    it('handles response with no files or impactedFiles keys', async () => {
+      mockClient.get.mockResolvedValueOnce({ state: 'processed' })
+
+      const result = await client.callTool({
+        name: 'compare_impacted_files',
+        arguments: { pullid: 5 },
+      })
+      const data = JSON.parse((result.content[0] as { text: string }).text)
+      expect(data.totalFiles).toBe(0)
+      expect(data.files).toHaveLength(0)
+    })
+
     it('uses impactedFiles key when files key is absent', async () => {
       mockClient.get.mockResolvedValueOnce({
         state: 'processed',

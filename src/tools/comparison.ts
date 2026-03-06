@@ -137,8 +137,8 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
         })
       }
 
-      const page = args.page ?? 1
-      const pageSize = args.page_size ?? 25
+      const page = args.page
+      const pageSize = args.page_size
       const totalPages = Math.ceil(files.length / pageSize)
       const start = (page - 1) * pageSize
       const paginatedFiles = files.slice(start, start + pageSize)

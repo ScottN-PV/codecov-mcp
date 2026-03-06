@@ -169,7 +169,7 @@ export function registerCompositeTools(server: McpServer, config: Config, client
         return bChange - aChange
       })
 
-      const maxFiles = args.max_files ?? 15
+      const maxFiles = args.max_files
       const truncated = allFiles.length > maxFiles
 
       const result: Record<string, unknown> = {
