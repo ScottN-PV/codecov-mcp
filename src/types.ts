@@ -7,6 +7,7 @@ export interface Config {
   timeoutMs: number
   maxRetries: number
   cacheTtlMs: number
+  enableAdminTools: boolean
 }
 
 export interface PaginatedResponse<T> {

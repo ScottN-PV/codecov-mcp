@@ -12,6 +12,7 @@ export function registerOwnerTools(server: McpServer, config: Config, client: Co
     'list_owners',
     {
       description: 'List all organizations and users the authenticated token has access to on a given git service. Use this to discover which owners/orgs you can query repos for.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         service: ServiceEnum.optional()
           .describe('Git hosting service. Defaults to CODECOV_SERVICE env var or auto-detected from git remote.'),
@@ -35,6 +36,7 @@ export function registerOwnerTools(server: McpServer, config: Config, client: Co
     'get_owner',
     {
       description: 'Get details about a specific owner (organization or user), including their username and display name.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         service: ServiceEnum.optional()
           .describe('Git hosting service. Defaults to CODECOV_SERVICE env var or auto-detected from git remote.'),

@@ -88,7 +88,7 @@ For `owner`, `repo`, and `service`: tool argument > environment variable > git r
 | 11 | Evaluations | 2 | `.../evals/` |
 | 12 | Utility / Composite | 3 | Various |
 
-**Total: 36 tools** (33 API endpoints + 3 composite/utility)
+**Total: 37 tools** (33 API endpoints + 4 composite/utility, including `get_pr_coverage`)
 
 ---
 

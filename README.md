@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/ScottN-PV/codecov-mcp/graph/badge.svg)](https://codecov.io/gh/ScottN-PV/codecov-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-The most comprehensive [Codecov](https://codecov.io) MCP server — **37 tools** covering 100% of the Codecov REST API v2, plus 5 prompts and 4 resources.
+The most comprehensive [Codecov](https://codecov.io) MCP server — **35+ tools** covering the Codecov REST API v2, plus 5 prompts and 4 resources.
 
 Built for [Claude Code](https://claude.com/claude-code) and any MCP-compatible AI agent.
 
@@ -58,7 +58,7 @@ Add this to your client's MCP config file (see [full installation guide](docs/IN
 >
 > **Windows users:** The CLI command has known quoting issues in PowerShell/CMD. Edit the JSON config directly — it's faster and always works. See the [installation guide](docs/INSTALLATION.md#claude-code-cli).
 
-That's it. If you're in a git repo with a GitHub/GitLab/Bitbucket remote, the server auto-detects your service, owner, and repo — zero extra configuration.
+That's it. If you're in a git repo with a public GitHub/GitLab/Bitbucket remote, the server auto-detects your service, owner, and repo. Enterprise/self-hosted users should set `CODECOV_SERVICE`, `CODECOV_OWNER`, and `CODECOV_REPO` explicitly.
 
 ### 3. Start Using It
 
@@ -78,7 +78,7 @@ Ask your AI agent things like:
 
 ---
 
-## Tools (37)
+## Tools (37 total, 35 default + 2 admin opt-in)
 
 ### Coverage
 
@@ -142,8 +142,15 @@ Ask your AI agent things like:
 | `get_owner` | Owner details |
 | `list_users` | Users in an org with activation status |
 | `get_user` | User details |
+
+### Admin Tools (opt-in)
+
+These tools are **disabled by default** for safety. Set `CODECOV_ENABLE_ADMIN_TOOLS=true` to enable them.
+
+| Tool | Description |
+|------|-------------|
 | `update_user` | Activate/deactivate a user (requires `confirm: true`) |
-| `list_user_sessions` | Login sessions |
+| `list_user_sessions` | Login sessions with tokens and timestamps |
 
 ### Test Analytics & Evaluations
 
@@ -201,6 +208,7 @@ All configuration is via environment variables:
 | `CODECOV_TIMEOUT_MS` | No | `30000` | Request timeout in ms |
 | `CODECOV_MAX_RETRIES` | No | `3` | Max retries on 429/5xx |
 | `CODECOV_CACHE_TTL_MS` | No | `300000` | Cache TTL in ms (5 min) |
+| `CODECOV_ENABLE_ADMIN_TOOLS` | No | `false` | Enable `update_user` and `list_user_sessions` |
 
 \* Not required for `validate_yaml` which uses a public endpoint.
 

@@ -21,6 +21,7 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     'compare_coverage',
     {
       description: 'Compare overall coverage between two commits or a pull request. Accepts pullid for PR comparison or base+head for arbitrary commit comparison. Returns base/head/diff totals and per-file changes. The primary tool for PR coverage review alongside get_pr_coverage.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...CompareParams.shape,
@@ -40,6 +41,7 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     'compare_components',
     {
       description: 'Compare coverage by component between two commits or a pull request (pass pullid). Components are logical groupings defined in codecov.yaml (e.g. frontend, backend). Use this in monorepos.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...CompareParams.shape,
@@ -59,6 +61,7 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     'compare_file',
     {
       description: 'Get line-by-line coverage comparison for a single file between two commits or a pull request (pass pullid). Shows which lines changed coverage status.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...CompareParams.shape,
@@ -79,6 +82,7 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     'compare_flags',
     {
       description: 'Compare coverage by flag (e.g. unit, integration, e2e) between two commits or a pull request (pass pullid). See which test category gained or lost coverage.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...CompareParams.shape,
@@ -98,6 +102,7 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     'compare_impacted_files',
     {
       description: 'List only files with changed coverage between two commits or a pull request (pass pullid). More efficient than full comparison when you only need to know which files got better or worse. Returns a state field: processed when complete, pending when still computing. Supports client-side pagination and filtering since the API returns all files at once.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...CompareParams.shape,
@@ -167,6 +172,7 @@ export function registerComparisonTools(server: McpServer, config: Config, clien
     'compare_segments',
     {
       description: 'Get segment-level (chunk) coverage diffs for a file between two commits or a pull request (pass pullid). Each segment shows a contiguous block of changed lines with their before/after coverage. This is the most granular diff available.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...CompareParams.shape,

@@ -20,7 +20,7 @@
 │         MCP Server Process          │
 │  ┌─────────────────────────────┐    │
 │  │      Tool Registry          │    │
-│  │  (36 tools + 5 prompts      │    │
+│  │  (37 tools + 5 prompts      │    │
 │  │   + 4 resources)            │    │
 │  └──────────────┬──────────────┘    │
 │                 │                   │

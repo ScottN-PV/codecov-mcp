@@ -20,9 +20,9 @@ describe('createServer', () => {
     await client.connect(clientTransport)
   })
 
-  it('registers all 37 tools', async () => {
+  it('registers 35 tools by default (admin tools disabled)', async () => {
     const { tools } = await client.listTools()
-    expect(tools).toHaveLength(37)
+    expect(tools).toHaveLength(35)
   })
 
   it('registers expected tool names', async () => {
@@ -34,6 +34,19 @@ describe('createServer', () => {
     expect(names).toContain('compare_coverage')
     expect(names).toContain('validate_yaml')
     expect(names).toContain('get_file_coverage')
+  })
+
+  it('registers all 37 tools when admin tools enabled', async () => {
+    const server = createServer(makeConfig({ enableAdminTools: true }))
+    const [ct, st] = InMemoryTransport.createLinkedPair()
+    const adminClient = new Client({ name: 'test-client', version: '0.0.1' })
+    await server.connect(st)
+    await adminClient.connect(ct)
+    const { tools } = await adminClient.listTools()
+    expect(tools).toHaveLength(37)
+    const names = tools.map(t => t.name)
+    expect(names).toContain('update_user')
+    expect(names).toContain('list_user_sessions')
   })
 
   it('registers all 5 prompts', async () => {

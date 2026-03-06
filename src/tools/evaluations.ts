@@ -12,6 +12,7 @@ export function registerEvaluationTools(server: McpServer, config: Config, clien
     'get_eval_summary',
     {
       description: 'Get AI/LLM evaluation metrics summary for a repository. Shows average duration, cost, pass/fail counts, and score breakdowns. Use this to monitor AI model quality over time.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         branch: z.string().optional().describe('Branch name.'),
@@ -36,6 +37,7 @@ export function registerEvaluationTools(server: McpServer, config: Config, clien
     'get_eval_comparison',
     {
       description: 'Compare AI/LLM evaluation metrics between two commits. Use this to detect model regressions or improvements.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         base_sha: z.string().optional().describe('Base commit SHA.'),

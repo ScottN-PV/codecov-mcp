@@ -48,6 +48,7 @@ export function registerCompositeTools(server: McpServer, config: Config, client
     'validate_yaml',
     {
       description: 'Validate a codecov.yaml configuration file. Returns whether the YAML is valid and any error messages. Use this before committing codecov.yaml changes to catch configuration errors early. Does not require authentication.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         yaml_content: z.string().describe('Raw codecov.yaml content to validate.'),
       },
@@ -63,6 +64,7 @@ export function registerCompositeTools(server: McpServer, config: Config, client
     'find_flaky_tests',
     {
       description: 'Find tests that are flaky — tests that have failed on the default branch, indicating intermittent failures unrelated to code changes. Returns results sorted by most recent failures. Use this to identify tests that need stabilization.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...BranchParam.shape,
@@ -95,6 +97,7 @@ export function registerCompositeTools(server: McpServer, config: Config, client
     'get_coverage_summary',
     {
       description: 'Get a quick, comprehensive coverage health summary for a repository in a single call. Combines repo coverage, trend direction, flag breakdown, and open PR count. Use this at the start of a session to get full situational awareness before diving into specifics.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         interval: z.enum(['1d', '7d', '30d']).optional().default('30d')
@@ -138,6 +141,7 @@ export function registerCompositeTools(server: McpServer, config: Config, client
     'get_pr_coverage',
     {
       description: 'Get a comprehensive coverage summary for a pull request in a single call. Combines PR details (patch/base/head coverage) with the top files that had coverage changes, sorted by largest impact. This is the go-to tool for code review workflows — use it to answer "how does this PR affect coverage?"',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         pullid: z.number().int().describe('Pull request number.'),

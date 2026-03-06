@@ -12,6 +12,7 @@ export function registerPullTools(server: McpServer, config: Config, client: Cod
     'list_pulls',
     {
       description: 'List pull requests for a repository with their coverage impact. Filterable by state (open/closed/merged). Use this for a quick overview of PR coverage activity.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         state: z.enum(['open', 'closed', 'merged']).optional().describe('Filter by PR state.'),
@@ -43,6 +44,7 @@ export function registerPullTools(server: McpServer, config: Config, client: Cod
     'get_pull',
     {
       description: 'Get coverage details for a specific pull request, including base/head/patch coverage percentages and CI status. For a comprehensive PR review with impacted files, use get_pr_coverage instead.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         pullid: z.number().int().describe('Pull request number.'),

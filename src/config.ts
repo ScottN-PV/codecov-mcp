@@ -15,6 +15,7 @@ export function loadConfig(): Config {
     timeoutMs: parseIntEnv('CODECOV_TIMEOUT_MS', DEFAULT_TIMEOUT_MS),
     maxRetries: parseIntEnv('CODECOV_MAX_RETRIES', DEFAULT_MAX_RETRIES),
     cacheTtlMs: parseIntEnv('CODECOV_CACHE_TTL_MS', DEFAULT_CACHE_TTL_MS),
+    enableAdminTools: process.env.CODECOV_ENABLE_ADMIN_TOOLS === 'true',
   }
 }
 

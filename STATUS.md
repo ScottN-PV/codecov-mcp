@@ -1,45 +1,48 @@
 # Project Status - codecov-mcp
-*Last updated: 2026-03-05*
+*Last updated: 2026-03-06*
 
 ## Current Focus
-Real-world feedback applied, SonarCloud issues resolved. 37 tools, 5 prompts, 4 resources. Ready for expanded test coverage.
+Launch readiness: all audit findings addressed, PRs merged, ready for final review and npm publish.
 
 ## Recent Changes
-- 2026-03-05 - Research, planning, and specs completed (see docs/)
-- 2026-03-05 - Planning audit reconciled (13 findings addressed, specs at v2.1)
-- 2026-03-05 - Project scaffolded: git, npm, TypeScript, ESLint, Vitest
-- 2026-03-05 - Core implemented: config, client (retry + cache), schemas, error handling, git remote detection
-- 2026-03-05 - All 36 tools implemented across 13 tool group files
-- 2026-03-05 - 5 MCP prompts and 4 MCP resources implemented
-- 2026-03-05 - 75 unit tests passing (config, cache, errors, format, git-remote, schemas, client, resolve-params, tool-result)
-- 2026-03-05 - README with full documentation, LICENSE (MIT)
-- 2026-03-05 - CI/CD: GitHub Actions (Node 20+22), Codecov, SonarCloud, Greptile
-- 2026-03-05 - Applied real-world feedback: new get_pr_coverage tool, get_coverage_totals context efficiency fix, improved descriptions
-- 2026-03-05 - Fixed all 78 SonarCloud issues: migrated to registerTool/registerPrompt/registerResource, readonly members, cognitive complexity, type assertions, nested ternaries, node: prefix, RegExp.exec, top-level await, .at()
+- 2026-03-06 - Merged PR #3 (installation guide) and PR #4 (bug fixes + pagination)
+- 2026-03-06 - Added SECURITY.md with vulnerability disclosure policy
+- 2026-03-06 - Gated admin tools (update_user, list_user_sessions) behind CODECOV_ENABLE_ADMIN_TOOLS env var
+- 2026-03-06 - Added MCP tool annotations (readOnlyHint/destructiveHint) to all 37 tools
+- 2026-03-06 - Added cross-platform CI smoke jobs (Windows + macOS)
+- 2026-03-06 - Broadened cache invalidation for mutations (patch clears collection too)
+- 2026-03-06 - Fixed codecov.yml project target (90% -> 85%), prepublishOnly now includes lint
+- 2026-03-06 - Removed dead test:integration script
+- 2026-03-06 - Softened enterprise auto-detect claims in README
+- 2026-03-06 - Updated spec docs with correct tool counts (37)
+- 2026-03-05 - Full implementation: 37 tools, 5 prompts, 4 resources
+- 2026-03-05 - 150 tests passing, CI green (Node 20+22)
+- 2026-03-05 - Fixed all 78 SonarCloud issues
+- 2026-03-05 - Fixed 4 runtime bugs found via dogfooding
 
 ## Completed
-- [x] Initialize git repo and npm project scaffold
-- [x] Implement core: config, client, cache, error handling
-- [x] Implement all 37 tools (36 original + get_pr_coverage)
-- [x] Implement 5 prompts and 4 resources
-- [x] README and documentation
-- [x] MIT License
-- [x] CI/CD with GitHub Actions, Codecov, SonarCloud
-- [x] Real-world feedback: context-efficient totals, PR coverage tool, improved descriptions
-- [x] Fix all SonarCloud issues (78 → 0 expected)
+- [x] Core implementation: 37 tools (35 default + 2 admin opt-in), 5 prompts, 4 resources
+- [x] 152 tests passing, 92%+ statement coverage
+- [x] CI/CD with GitHub Actions, Codecov, SonarCloud, CodeQL
+- [x] Cross-platform CI (Linux, Windows, macOS)
+- [x] SECURITY.md with disclosure policy
+- [x] Admin tools gated behind opt-in env var
+- [x] MCP tool annotations on all tools
+- [x] Installation guide for all MCP clients and platforms
+- [x] README updated with accurate claims and admin tools section
 
 ## Next Steps
-- [ ] Expand unit tests (tool handlers, prompts, resources — mock API responses)
-- [ ] Reach 90%+ test coverage target (currently ~16%)
-- [ ] Integration tests (live API)
-- [ ] Test end-to-end with Claude Code
+- [ ] Push launch-readiness branch, open PR, verify CI
+- [ ] Merge to main after CI passes
+- [ ] Mark SonarQube security hotspots as SAFE in web UI
 - [ ] Publish to npm as `codecov-mcp`
+- [ ] Post-launch: CONTRIBUTING.md, issue templates, CODEOWNERS, Dependabot
 
 ## Known Issues / Blockers
-- Evaluations endpoints may evolve (newer Codecov feature)
-- Flag filtering on /totals/ endpoint may not work (API-side issue, documented in tool description)
+- SonarQube hotspots (S5852, S4036) must be marked via web UI
+- Flag filtering on /totals/ endpoint may not work (API-side issue, documented)
 
 ## Notes
 - GitHub repo: https://github.com/ScottN-PV/codecov-mcp
-- 5 existing competitors; best covers ~25% of API with 8 tools
-- We have: 37 tools, multi-service, prompts, resources, caching, auto-detection
+- 3 review services active: Codecov, SonarCloud, Greptile
+- Admin tools (update_user, list_user_sessions) require CODECOV_ENABLE_ADMIN_TOOLS=true

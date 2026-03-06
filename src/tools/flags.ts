@@ -12,6 +12,7 @@ export function registerFlagTools(server: McpServer, config: Config, client: Cod
     'list_flags',
     {
       description: 'List coverage flags for a repository with their current coverage percentages. Flags represent test types (e.g. unit, integration, e2e).',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         ...PaginationParams.shape,
@@ -34,6 +35,7 @@ export function registerFlagTools(server: McpServer, config: Config, client: Cod
     'get_flag_coverage_trend',
     {
       description: 'Get time-series coverage data for a specific flag. Track how unit test coverage, integration test coverage, or any other flag category is trending over time — independently of overall repo coverage.',
+      annotations: { readOnlyHint: true },
       inputSchema: {
         ...OwnerRepoParams.shape,
         flag: z.string().describe('Flag name (e.g. unit, integration, e2e).'),
